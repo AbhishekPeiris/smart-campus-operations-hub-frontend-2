@@ -46,6 +46,8 @@ export default function DashboardTicketDetail() {
   const [newStatus, setNewStatus] = useState('IN_PROGRESS');
   const [rejectReason, setRejectReason] = useState('');
   const [resolutionNotes, setResolutionNotes] = useState('');
+  const [resolveError, setResolveError] = useState('');
+  const [resolveValidationErrors, setResolveValidationErrors] = useState([]);
   const [actionLoading, setActionLoading] = useState(false);
 
   const load = async () => {
@@ -97,13 +99,20 @@ export default function DashboardTicketDetail() {
   };
 
   const handleResolve = async () => {
+    setResolveError('');
+    setResolveValidationErrors([]);
     setActionLoading(true);
     try {
       await resolveTicket(id, { resolutionNotes });
       setResolveModal(false);
       setResolutionNotes('');
       load();
-    } catch { } finally { setActionLoading(false); }
+    } catch (err) {
+      const serverData = err.response?.data;
+      const details = Array.isArray(serverData?.validationErrors) ? serverData.validationErrors : [];
+      setResolveValidationErrors(details);
+      setResolveError(serverData?.message || 'Failed to resolve ticket');
+    } finally { setActionLoading(false); }
   };
 
   const handleAddComment = async () => {
@@ -428,6 +437,14 @@ export default function DashboardTicketDetail() {
       {/* Resolve Modal */}
       <Modal open={resolveModal} onClose={() => setResolveModal(false)} title="Resolve Ticket">
         <div className="space-y-3">
+          {resolveError && <div className="p-2.5 bg-red-50 border border-red-200 rounded text-xs text-danger">{resolveError}</div>}
+          {resolveValidationErrors.length > 0 && (
+            <div className="p-2.5 bg-red-50 border border-red-200 rounded">
+              <ul className="list-disc pl-4 text-xs text-danger space-y-1">
+                {resolveValidationErrors.map((v, idx) => <li key={`${v}-${idx}`}>{v}</li>)}
+              </ul>
+            </div>
+          )}
           <textarea value={resolutionNotes} onChange={e => setResolutionNotes(e.target.value)} placeholder="Resolution notes..."
             className="w-full px-3 py-2 text-sm border border-border rounded-md resize-none" rows={3} />
           <div className="flex justify-end gap-2">

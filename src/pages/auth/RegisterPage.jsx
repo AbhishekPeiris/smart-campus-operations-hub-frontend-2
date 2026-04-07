@@ -8,6 +8,7 @@ import { GraduationCap } from 'lucide-react';
 export default function RegisterPage() {
   const [form, setForm] = useState({ fullName: '', universityEmailAddress: '', password: '', contactNumber: '', role: 'USER' });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -15,6 +16,27 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setFieldErrors({});
+    // validate phone and password
+    const errors = {};
+    if (form.contactNumber) {
+      if (!/^\d*$/.test(form.contactNumber)) {
+        errors.contactNumber = 'Contact number must contain only digits';
+      }
+      if (form.contactNumber.length > 10) {
+        errors.contactNumber = 'Contact number must be at most 10 digits';
+      }
+    }
+    // password: at least 8 chars, one upper, one lower, one digit, one special
+    const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!pwdRegex.test(form.password)) {
+      errors.password = 'Password must be at least 8 characters and include uppercase, lowercase, number and special character (e.g. Test@123)';
+    }
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
     try {
       await register(form);
       navigate('/login');
@@ -25,7 +47,16 @@ export default function RegisterPage() {
     }
   };
 
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const set = (k) => (e) => {
+    let v = e.target.value;
+    if (k === 'contactNumber') {
+      // keep digits only and limit to 10 characters
+      v = v.replace(/\D/g, '').slice(0, 10);
+    }
+    setForm({ ...form, [k]: v });
+    setFieldErrors({ ...fieldErrors, [k]: undefined });
+    setError('');
+  };
 
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
@@ -41,8 +72,8 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-3">
             <Input label="Full Name" required value={form.fullName} onChange={set('fullName')} placeholder="John Doe" />
             <Input label="University Email" type="email" required value={form.universityEmailAddress} onChange={set('universityEmailAddress')} placeholder="you@uni.com" />
-            <Input label="Password" type="password" required value={form.password} onChange={set('password')} placeholder="Min 6 characters" />
-            <Input label="Contact Number" value={form.contactNumber} onChange={set('contactNumber')} placeholder="+94771234567" />
+            <Input label="Password" type="password" required value={form.password} onChange={set('password')} placeholder="Min 8 characters, include Test@123 style" error={fieldErrors.password} />
+            <Input label="Contact Number" value={form.contactNumber} onChange={set('contactNumber')} placeholder="0771234567" maxLength={10} error={fieldErrors.contactNumber} />
             <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Creating...' : 'Register'}</Button>
           </form>
           <p className="mt-4 text-xs text-center text-text-muted">

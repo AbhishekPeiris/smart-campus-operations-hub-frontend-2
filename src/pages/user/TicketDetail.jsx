@@ -95,7 +95,7 @@ export default function TicketDetail() {
     try {
       await deleteComment(commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
-    } catch {}
+    } catch { }
   };
 
   const handleAttachmentFilePick = (e) => {
@@ -426,13 +426,16 @@ export default function TicketDetail() {
                         View
                       </a>
                     )}
-                    <button
-                      onClick={() => handleDeleteAttachment(a.id)}
-                      disabled={deletingAttachmentId === a.id}
-                      className="p-1 text-text-muted hover:text-danger disabled:opacity-50"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                    {(user?.role !== "USER" ||
+                      a.uploadedByUserId === user.userId) && (
+                        <button
+                          onClick={() => handleDeleteAttachment(a.id)}
+                          disabled={deletingAttachmentId === a.id}
+                          className="p-1 text-text-muted hover:text-danger disabled:opacity-50"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
                   </div>
                 </div>
               ))}
