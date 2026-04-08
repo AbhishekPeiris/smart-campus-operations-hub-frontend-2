@@ -1,16 +1,16 @@
 export default function Input({ label, error, className = '', ...props }) {
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-2.5 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-text-secondary">
+        <label className="block text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-text-muted">
           {label}
         </label>
       )}
       <input
-        className={`w-full px-3 py-2 text-sm ${error ? 'border-danger focus:border-danger focus:ring-red-100' : 'border-border'}`}
+        className={`w-full px-4 py-3 text-sm text-text-primary shadow-[0_10px_20px_rgba(15,23,42,0.04)] ${error ? 'border-danger focus:border-danger focus:ring-red-100' : 'border-border'}`}
         {...props}
       />
-      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
+      {error && <p className="mt-1 text-xs font-medium text-danger">{error}</p>}
     </div>
   );
 }

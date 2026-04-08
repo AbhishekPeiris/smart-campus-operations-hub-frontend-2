@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap } from 'lucide-react';
+import { CheckCircle2, GraduationCap, ShieldCheck, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
 import { getGoogleOAuthConfig, googleLogin, login } from '../../api/auth';
 import Input from '../../components/common/Input';
@@ -117,61 +117,116 @@ export default function LoginPage() {
 
   return (
     <div className="auth-shell">
-      <div className="w-full max-w-[340px]">
-        <div className="mb-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-text-primary text-white">
-            <GraduationCap size={22} />
-          </div>
-          <h1 className="mt-4 text-2xl font-light text-text-primary">Sign in to Smart Campus</h1>
-          <p className="mt-2 text-sm text-text-secondary">Use your campus account to continue.</p>
-        </div>
-
-        <div className="auth-card">
-          {error && (
-            <div className="soft-alert mb-4 border-red-200 bg-red-50 text-danger">
-              {error}
+      <div className="auth-grid">
+        <section className="auth-showcase">
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-3 rounded-[18px] border border-white/12 bg-white/10 px-4 py-3 backdrop-blur-sm">
+              <span className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-white/12 text-white">
+                <GraduationCap size={20} />
+              </span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/65">Smart Campus</p>
+                <p className="mt-1 text-lg font-semibold">Operations Hub</p>
+              </div>
             </div>
-          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="University email"
-              type="email"
-              required
-              value={form.universityEmailAddress}
-              onChange={(event) => setForm({ ...form, universityEmailAddress: event.target.value })}
-              placeholder="you@uni.com"
-            />
-            <Input
-              label="Password"
-              type="password"
-              required
-              value={form.password}
-              onChange={(event) => setForm({ ...form, password: event.target.value })}
-              placeholder="Enter your password"
-            />
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
-            </Button>
-          </form>
+            <div className="mt-10 max-w-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-200">Unified workspace</p>
+              <h1 className="mt-4 text-balance text-4xl font-semibold leading-tight text-white">
+                Run campus operations from a cleaner, faster control layer.
+              </h1>
+              <p className="mt-5 max-w-lg text-sm leading-7 text-white/72">
+                Sign in to review incident activity, reserve shared resources, and keep every request visible from one modern operations workspace.
+              </p>
+            </div>
+          </div>
 
-          {googleClientId && (
-            <>
-              <div className="my-4 flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs text-text-muted">or</span>
-                <div className="h-px flex-1 bg-border" />
+          <div className="relative z-10 mt-10 grid gap-4">
+            <div className="rounded-[22px] border border-white/12 bg-white/10 px-5 py-4 backdrop-blur-sm">
+              <div className="flex items-start gap-3">
+                <ShieldCheck size={18} className="mt-0.5 text-primary-200" />
+                <div>
+                  <p className="text-sm font-semibold text-white">Protected account access</p>
+                  <p className="mt-1 text-sm leading-6 text-white/68">Use your university identity or Google sign-in when enabled by the backend configuration.</p>
+                </div>
               </div>
-              <div id="google-signin-btn" className="flex min-h-10 justify-center">
-                {googleLoading && <p className="text-xs text-text-muted">Signing in with Google...</p>}
+            </div>
+            <div className="rounded-[22px] border border-white/12 bg-white/10 px-5 py-4 backdrop-blur-sm">
+              <div className="flex items-start gap-3">
+                <Sparkles size={18} className="mt-0.5 text-primary-200" />
+                <div>
+                  <p className="text-sm font-semibold text-white">Operational visibility</p>
+                  <p className="mt-1 text-sm leading-6 text-white/68">Bookings, tickets, resources, and updates stay connected so users and administrators work from the same live data.</p>
+                </div>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        </section>
 
-        <div className="mt-4 rounded-md border border-border bg-white px-4 py-4 text-center text-sm text-text-secondary">
-          New to the portal? <Link to="/register" className="font-medium text-primary-500 hover:underline">Create an account</Link>
-        </div>
+        <section className="auth-card">
+          <div className="mx-auto flex w-full max-w-[380px] flex-col justify-center">
+            <div className="rounded-[18px] border border-border bg-white/78 px-4 py-3 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
+              <p className="page-kicker">Welcome back</p>
+              <h2 className="mt-2 text-[1.85rem] font-semibold tracking-tight text-text-primary">Sign in</h2>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">Use your campus credentials to continue into the Smart Campus workspace.</p>
+            </div>
+
+            <div className="mt-6 rounded-[26px] border border-border bg-white/88 p-6 shadow-[0_22px_44px_rgba(15,23,42,0.08)] sm:p-7">
+              {error && (
+                <div className="soft-alert mb-5 border-red-200 bg-red-50 text-danger">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  label="University email"
+                  type="email"
+                  required
+                  value={form.universityEmailAddress}
+                  onChange={(event) => setForm({ ...form, universityEmailAddress: event.target.value })}
+                  placeholder="you@uni.com"
+                />
+                <Input
+                  label="Password"
+                  type="password"
+                  required
+                  value={form.password}
+                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  placeholder="Enter your password"
+                />
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Signing in...' : 'Sign in'}
+                </Button>
+              </form>
+
+              {googleClientId && (
+                <>
+                  <div className="my-5 flex items-center gap-3">
+                    <div className="h-px flex-1 bg-border" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">or continue</span>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <div className="rounded-[18px] border border-border bg-white/80 p-3">
+                    <div id="google-signin-btn" className="flex min-h-10 justify-center">
+                      {googleLoading && <p className="text-xs text-text-muted">Signing in with Google...</p>}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-5 flex items-start gap-3 rounded-[20px] border border-border bg-white/72 px-4 py-4 text-sm text-text-secondary">
+              <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-primary-600" />
+              <p>
+                New to the portal?{' '}
+                <Link to="/register" className="font-semibold text-primary-600 hover:text-primary-700">
+                  Create an account
+                </Link>
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

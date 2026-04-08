@@ -5,7 +5,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
   if (totalPages <= 1) return null;
   return (
     <div className="flex items-center justify-between gap-3 pt-4 border-t border-border flex-wrap">
-      <span className="rounded-[14px] border border-border bg-white/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">
+      <span className="rounded-[14px] border border-border bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-text-muted shadow-[0_12px_22px_rgba(15,23,42,0.04)]">
         Page {currentPage + 1} of {totalPages}
       </span>
       <div className="flex gap-2">
