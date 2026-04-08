@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
-import NotificationPanel from '../common/NotificationPanel';
 import {
   LayoutDashboard, Ticket, Users, ChevronLeft, ChevronRight,
-  LogOut, GraduationCap, ClipboardList, Settings, Building2, CalendarDays, Bell
+  LogOut, GraduationCap, ClipboardList, Settings, Building2, CalendarDays
 } from 'lucide-react';
 
 export default function DashboardLayout() {
@@ -23,7 +22,6 @@ export default function DashboardLayout() {
       { to: '/dashboard/users', label: 'User Management', icon: Users },
     ] : []),
     { to: '/dashboard/my-assignments', label: 'My Assignments', icon: ClipboardList, show: user?.role === 'TECHNICIAN' },
-    { to: '/dashboard/notifications', label: 'Notifications', icon: Bell },
     { to: '/dashboard/profile', label: 'Profile', icon: Settings },
   ].filter(n => n.show !== false);
 
@@ -61,7 +59,6 @@ export default function DashboardLayout() {
             {user?.role === 'ADMIN' ? 'Admin Dashboard' : 'Technician Dashboard'}
           </h2>
           <div className="flex items-center gap-3">
-            <NotificationPanel />
             <span className="text-xs text-text-muted">{user?.fullName}</span>
             <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-primary-100 text-primary-700">{user?.role}</span>
             <button onClick={() => { logout(); navigate('/login'); }} className="p-1.5 rounded-md text-text-muted hover:bg-surface-alt" title="Logout">

@@ -30,7 +30,6 @@ import UserManagement from './pages/dashboard/UserManagement';
 import MyAssignments from './pages/dashboard/MyAssignments';
 import ResourceManagement from './pages/dashboard/ResourceManagement';
 import AllBookings from './pages/dashboard/AllBookings';
-import AdminNotifications from './pages/dashboard/AdminNotifications';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading } = useAuth();
@@ -79,7 +78,6 @@ export default function App() {
             <Route path="my-assignments" element={<ProtectedRoute allowedRoles={['TECHNICIAN']}><MyAssignments /></ProtectedRoute>} />
             <Route path="resources" element={<ProtectedRoute allowedRoles={['ADMIN']}><ResourceManagement /></ProtectedRoute>} />
             <Route path="bookings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AllBookings /></ProtectedRoute>} />
-            <Route path="notifications" element={<AdminNotifications />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
 
