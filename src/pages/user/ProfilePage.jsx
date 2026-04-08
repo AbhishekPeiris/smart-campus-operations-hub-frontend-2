@@ -52,16 +52,16 @@ export default function ProfilePage() {
       </div>
 
       <Card className="surface-panel overflow-hidden">
-        <div className="grid gap-0 lg:grid-cols-[280px_1fr]">
-          <div className="bg-primary-700 px-6 py-8 text-white">
-            <div className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[24px] bg-white/14 text-3xl font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+        <div className="grid gap-0 lg:grid-cols-[260px_1fr]">
+          <div className="border-r border-border bg-surface-alt px-6 py-8">
+            <div className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border border-border bg-white text-3xl font-semibold text-text-primary">
               {profile.fullName?.charAt(0)}
             </div>
-            <p className="mt-5 text-2xl font-semibold">{profile.fullName}</p>
-            <p className="mt-2 inline-flex rounded-[14px] border border-white/18 bg-white/12 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/84">
+            <p className="mt-5 text-2xl font-semibold text-text-primary">{profile.fullName}</p>
+            <p className="mt-2 inline-flex rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-text-secondary">
               {profile.role}
             </p>
-            <p className="mt-5 text-sm leading-6 text-white/76">
+            <p className="mt-5 text-sm leading-6 text-text-secondary">
               This profile card stays in sync with the authenticated session so your portal experience matches your current access level.
             </p>
           </div>
@@ -71,7 +71,7 @@ export default function ProfilePage() {
               {fields.map((field) => (
                 <div key={field.label} className="detail-tile">
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] bg-primary-50 text-primary-700">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-white text-text-muted">
                       <field.icon size={17} />
                     </span>
                     <div>
