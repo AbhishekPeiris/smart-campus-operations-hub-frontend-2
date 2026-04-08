@@ -25,6 +25,7 @@ export default function NewTicket() {
   const [loading, setLoading] = useState(false);
   const [resourcesLoading, setResourcesLoading] = useState(true);
   const [error, setError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [validationErrors, setValidationErrors] = useState([]);
   const [locationType, setLocationType] = useState('resource');
   const [resources, setResources] = useState([]);
@@ -86,6 +87,24 @@ export default function NewTicket() {
   );
 
   const set = (key) => (event) => {
+    if (key === 'preferredContactPhoneNumber') {
+      const rawValue = event.target.value;
+      const digitsOnlyValue = rawValue.replace(/\D/g, '').slice(0, 10);
+
+      if (rawValue !== digitsOnlyValue) {
+        if (rawValue.replace(/\D/g, '').length > 10) {
+          setPhoneError('Phone number must be at most 10 digits');
+        } else {
+          setPhoneError('Phone number can contain digits only');
+        }
+      } else {
+        setPhoneError('');
+      }
+
+      setForm({ ...form, [key]: digitsOnlyValue });
+      return;
+    }
+
     setForm({ ...form, [key]: event.target.value });
   };
 
@@ -148,7 +167,17 @@ export default function NewTicket() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+    setPhoneError('');
     setValidationErrors([]);
+
+    if (
+      form.preferredContactPhoneNumber
+      && !/^\d{1,10}$/.test(form.preferredContactPhoneNumber)
+    ) {
+      setPhoneError('Phone number can contain digits only and must be at most 10 digits');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -271,7 +300,15 @@ export default function NewTicket() {
             <div className="grid grid-cols-3 gap-4">
               <Input label="Name" value={form.preferredContactName} onChange={set('preferredContactName')} />
               <Input label="Email" type="email" value={form.preferredContactEmailAddress} onChange={set('preferredContactEmailAddress')} />
-              <Input label="Phone" value={form.preferredContactPhoneNumber} onChange={set('preferredContactPhoneNumber')} placeholder="+94771234567" />
+              <Input
+                label="Phone"
+                value={form.preferredContactPhoneNumber}
+                onChange={set('preferredContactPhoneNumber')}
+                placeholder="+94771234567"
+                inputMode="numeric"
+                maxLength={10}
+                error={phoneError}
+              />
             </div>
           </div>
 
