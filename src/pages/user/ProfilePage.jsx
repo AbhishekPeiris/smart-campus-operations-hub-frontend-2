@@ -53,7 +53,7 @@ export default function ProfilePage() {
 
       <Card className="surface-panel overflow-hidden">
         <div className="grid gap-0 lg:grid-cols-[280px_1fr]">
-          <div className="bg-[linear-gradient(180deg,rgba(15,92,192,0.96),rgba(13,78,159,0.96))] px-6 py-8 text-white">
+          <div className="bg-primary-700 px-6 py-8 text-white">
             <div className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[24px] bg-white/14 text-3xl font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
               {profile.fullName?.charAt(0)}
             </div>

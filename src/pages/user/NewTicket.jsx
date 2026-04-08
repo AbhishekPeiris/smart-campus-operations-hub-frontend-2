@@ -321,7 +321,7 @@ export default function NewTicket() {
             </form>
           </div>
 
-          <div className="border-l border-border bg-[linear-gradient(180deg,rgba(239,245,252,0.82),rgba(233,240,248,0.95))] px-6 py-6">
+          <div className="border-l border-border bg-surface-alt px-6 py-6">
             <p className="page-kicker">Submission Guidance</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">Create cleaner, actionable tickets</h2>
             <div className="mt-5 space-y-4 text-sm leading-6 text-text-secondary">

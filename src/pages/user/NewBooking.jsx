@@ -318,7 +318,7 @@ export default function NewBooking() {
             </form>
           </div>
 
-          <div className="border-l border-border bg-[linear-gradient(180deg,rgba(239,245,252,0.82),rgba(233,240,248,0.95))] px-6 py-6 space-y-5">
+          <div className="border-l border-border bg-surface-alt px-6 py-6 space-y-5">
             <div>
               <p className="page-kicker">Schedule Preview</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">Same-day visibility before you submit</h2>
