@@ -58,11 +58,26 @@ export const DAYS_OF_WEEK = [
 ];
 
 export const NOTIFICATION_TYPES = [
-  { value: 'BOOKING_APPROVED', label: 'Booking Approved' },
-  { value: 'BOOKING_REJECTED', label: 'Booking Rejected' },
-  { value: 'TICKET_STATUS_CHANGED', label: 'Ticket Status Changed' },
-  { value: 'TICKET_COMMENT_ADDED', label: 'Comment Added' },
+  { value: 'BOOKING_APPROVED', label: 'Booking Approved', icon: '[OK]' },
+  { value: 'BOOKING_REJECTED', label: 'Booking Rejected', icon: '[X]' },
+  { value: 'TICKET_STATUS_CHANGED', label: 'Ticket Status Changed', icon: '[~]' },
+  { value: 'TICKET_COMMENT_ADDED', label: 'Comment Added', icon: '[C]' },
 ];
+
+export const NOTIFICATION_SYNC_EVENT = 'smart-campus:notifications-sync';
+
+export function getNotificationIcon(type) {
+  return NOTIFICATION_TYPES.find((item) => item.value === type)?.icon || '[!]';
+}
+
+export function getNotificationLabel(type) {
+  return NOTIFICATION_TYPES.find((item) => item.value === type)?.label || type;
+}
+
+export function emitNotificationsSync() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new Event(NOTIFICATION_SYNC_EVENT));
+}
 
 export const USER_ROLES = [
   { value: 'USER', label: 'User' },
@@ -71,35 +86,52 @@ export const USER_ROLES = [
 ];
 
 export function getStatusBadge(status) {
-  return TICKET_STATUSES.find(s => s.value === status) || TICKET_STATUSES[0];
+  return TICKET_STATUSES.find((item) => item.value === status) || TICKET_STATUSES[0];
 }
 
 export function getPriorityBadge(priority) {
-  return PRIORITY_LEVELS.find(p => p.value === priority) || PRIORITY_LEVELS[0];
+  return PRIORITY_LEVELS.find((item) => item.value === priority) || PRIORITY_LEVELS[0];
 }
 
-export function getCategoryLabel(cat) {
-  return INCIDENT_CATEGORIES.find(c => c.value === cat)?.label || cat;
+export function getCategoryLabel(category) {
+  return INCIDENT_CATEGORIES.find((item) => item.value === category)?.label || category;
 }
 
 export function getBookingStatusBadge(status) {
-  return BOOKING_STATUSES.find(s => s.value === status) || BOOKING_STATUSES[0];
+  return BOOKING_STATUSES.find((item) => item.value === status) || BOOKING_STATUSES[0];
 }
 
 export function getResourceStatusBadge(status) {
-  return RESOURCE_STATUSES.find(s => s.value === status) || RESOURCE_STATUSES[0];
+  return RESOURCE_STATUSES.find((item) => item.value === status) || RESOURCE_STATUSES[0];
 }
 
 export function getResourceTypeLabel(type) {
-  return RESOURCE_TYPES.find(t => t.value === type)?.label || type;
+  return RESOURCE_TYPES.find((item) => item.value === type)?.label || type;
 }
 
-export function formatDate(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+export function formatDate(value) {
+  if (!value) return '-';
+  return new Date(value).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
-export function formatDateShort(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+export function formatDateShort(value) {
+  if (!value) return '-';
+  return new Date(value).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+export function formatTimeRange(startTime, endTime) {
+  if (!startTime && !endTime) return '-';
+  if (!startTime) return endTime;
+  if (!endTime) return startTime;
+  return `${startTime} - ${endTime}`;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { getTicket, assignTechnician, updateTicketStatus, rejectTicket, resolveTicket } from '../../api/tickets';
 import { getCommentsByTicket, addComment, deleteComment } from '../../api/comments';
 import { getAttachmentsByTicket, uploadAttachment, deleteAttachment } from '../../api/attachments';

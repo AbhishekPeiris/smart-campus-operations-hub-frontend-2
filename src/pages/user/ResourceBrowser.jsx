@@ -20,11 +20,14 @@ export default function ResourceBrowser() {
     setLoading(true);
     searchResources({ ...filters, page, size: 12 })
       .then(res => setData(res.data.data || { content: [] }))
-      .catch(() => {})
+      .catch((err) => {
+        console.error('Failed to load resources:', err);
+        // Keep existing data on error
+      })
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, [page]);
+  useEffect(() => { load(); }, [page, filters]);
 
   const handleSearch = (e) => {
     e.preventDefault();

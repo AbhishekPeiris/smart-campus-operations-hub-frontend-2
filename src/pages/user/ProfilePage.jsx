@@ -1,27 +1,42 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useEffect, useState } from 'react';
+import { Calendar, Mail, Phone, Shield, User } from 'lucide-react';
+import { useAuth } from '../../context/useAuth';
 import { getUserProfile } from '../../api/users';
 import Card from '../../components/common/Card';
 import Spinner from '../../components/common/Spinner';
-import { User, Mail, Phone, Shield, Calendar } from 'lucide-react';
 import { formatDate } from '../../utils/constants';
+import { extractApiData, normalizeUser } from '../../utils/apiData';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getUserProfile(user.userId).then(res => setProfile(res.data.data)).catch(() => {}).finally(() => setLoading(false));
-  }, [user.userId]);
+    if (!user?.id) return;
 
-  if (loading) return <div className="flex justify-center py-20"><Spinner className="h-8 w-8" /></div>;
+    getUserProfile(user.id)
+      .then((res) => {
+        const normalizedProfile = normalizeUser(extractApiData(res));
+        setProfile(normalizedProfile);
+        updateUser(normalizedProfile);
+      })
+      .catch((err) => {
+        console.error('Failed to load user profile:', err);
+      })
+      .finally(() => setLoading(false));
+  }, [user?.id, updateUser]);
+
+  if (loading) {
+    return <div className="flex justify-center py-20"><Spinner className="h-8 w-8" /></div>;
+  }
+
   if (!profile) return null;
 
   const fields = [
     { icon: User, label: 'Full Name', value: profile.fullName },
     { icon: Mail, label: 'Email', value: profile.universityEmailAddress },
-    { icon: Phone, label: 'Contact', value: profile.contactNumber || '—' },
+    { icon: Phone, label: 'Contact', value: profile.contactNumber || '-' },
     { icon: Shield, label: 'Role', value: profile.role },
     { icon: Calendar, label: 'Member Since', value: formatDate(profile.createdAt) },
   ];
@@ -40,12 +55,12 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="space-y-4">
-          {fields.map(f => (
-            <div key={f.label} className="flex items-center gap-3">
-              <f.icon size={16} className="text-text-muted shrink-0" />
+          {fields.map((field) => (
+            <div key={field.label} className="flex items-center gap-3">
+              <field.icon size={16} className="text-text-muted shrink-0" />
               <div>
-                <p className="text-xs text-text-muted">{f.label}</p>
-                <p className="text-sm font-medium">{f.value}</p>
+                <p className="text-xs text-text-muted">{field.label}</p>
+                <p className="text-sm font-medium">{field.value}</p>
               </div>
             </div>
           ))}

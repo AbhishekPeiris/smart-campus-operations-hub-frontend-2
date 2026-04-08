@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
 import Spinner from './components/common/Spinner';
 
 // Layouts
@@ -29,6 +30,7 @@ import UserManagement from './pages/dashboard/UserManagement';
 import MyAssignments from './pages/dashboard/MyAssignments';
 import ResourceManagement from './pages/dashboard/ResourceManagement';
 import AllBookings from './pages/dashboard/AllBookings';
+import AdminNotifications from './pages/dashboard/AdminNotifications';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading } = useAuth();
@@ -73,11 +75,11 @@ export default function App() {
             <Route index element={<DashboardOverview />} />
             <Route path="tickets" element={<AllTickets />} />
             <Route path="tickets/:id" element={<DashboardTicketDetail />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="my-assignments" element={<MyAssignments />} />
-            <Route path="resources" element={<ResourceManagement />} />
-            <Route path="bookings" element={<AllBookings />} />
-            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="users" element={<ProtectedRoute allowedRoles={['ADMIN']}><UserManagement /></ProtectedRoute>} />
+            <Route path="my-assignments" element={<ProtectedRoute allowedRoles={['TECHNICIAN']}><MyAssignments /></ProtectedRoute>} />
+            <Route path="resources" element={<ProtectedRoute allowedRoles={['ADMIN']}><ResourceManagement /></ProtectedRoute>} />
+            <Route path="bookings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AllBookings /></ProtectedRoute>} />
+            <Route path="notifications" element={<AdminNotifications />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
 

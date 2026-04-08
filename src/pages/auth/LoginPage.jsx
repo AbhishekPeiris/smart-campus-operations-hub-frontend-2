@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { login, googleLogin, getGoogleOAuthConfig } from '../../api/auth';
+import { GraduationCap } from 'lucide-react';
+import { useAuth } from '../../context/useAuth';
+import { getGoogleOAuthConfig, googleLogin, login } from '../../api/auth';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
-import { GraduationCap } from 'lucide-react';
+import { extractApiData } from '../../utils/apiData';
 
 export default function LoginPage() {
   const [form, setForm] = useState({ universityEmailAddress: '', password: '' });
@@ -15,65 +16,98 @@ export default function LoginPage() {
   const { loginUser } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getGoogleOAuthConfig().then(res => {
-      const cfg = res.data.data;
-      if (cfg?.enabled && cfg?.clientId) {
-        setGoogleClientId(cfg.clientId);
-        loadGoogleScript(cfg.clientId);
-      }
-    }).catch(() => {});
-  }, []);
+  const redirectAfterLogin = useCallback((account) => {
+    if (account.role === 'USER') navigate('/portal');
+    else navigate('/dashboard');
+  }, [navigate]);
 
-  const loadGoogleScript = (clientId) => {
-    if (document.getElementById('google-gsi-script')) return;
-    const script = document.createElement('script');
-    script.id = 'google-gsi-script';
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      if (window.google) {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleGoogleResponse,
-        });
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-signin-btn'),
-          { theme: 'outline', size: 'large', width: '100%', text: 'signin_with' }
-        );
-      }
-    };
-    document.body.appendChild(script);
-  };
-
-  const handleGoogleResponse = async (response) => {
+  const handleGoogleResponse = useCallback(async (response) => {
     if (!response?.credential) return;
+
     setGoogleLoading(true);
     setError('');
     try {
       const res = await googleLogin(response.credential);
-      const data = res.data.data;
+      const data = extractApiData(res);
       loginUser(data);
-      if (data.role === 'USER') navigate('/portal');
-      else navigate('/dashboard');
+      redirectAfterLogin(data);
     } catch (err) {
       setError(err.response?.data?.message || 'Google login failed');
     } finally {
       setGoogleLoading(false);
     }
-  };
+  }, [loginUser, redirectAfterLogin]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const renderGoogleButton = useCallback((clientId) => {
+    if (!window.google?.accounts?.id) return;
+
+    const buttonRoot = document.getElementById('google-signin-btn');
+    if (!buttonRoot) return;
+
+    buttonRoot.innerHTML = '';
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: handleGoogleResponse,
+    });
+    window.google.accounts.id.renderButton(buttonRoot, {
+      theme: 'outline',
+      size: 'large',
+      width: '100%',
+      text: 'signin_with',
+    });
+  }, [handleGoogleResponse]);
+
+  useEffect(() => {
+    getGoogleOAuthConfig()
+      .then((res) => {
+        const config = extractApiData(res);
+        if (config?.enabled && config?.clientId) {
+          setGoogleClientId(config.clientId);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load Google OAuth config:', err);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!googleClientId) return undefined;
+
+    if (window.google?.accounts?.id) {
+      renderGoogleButton(googleClientId);
+      return undefined;
+    }
+
+    let script = document.getElementById('google-gsi-script');
+
+    const handleLoad = () => renderGoogleButton(googleClientId);
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = 'google-gsi-script';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    script.addEventListener('load', handleLoad);
+
+    return () => {
+      script.removeEventListener('load', handleLoad);
+    };
+  }, [googleClientId, renderGoogleButton]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
     setLoading(true);
+
     try {
       const res = await login(form);
-      const data = res.data.data;
+      const data = extractApiData(res);
       loginUser(data);
-      if (data.role === 'USER') navigate('/portal');
-      else navigate('/dashboard');
+      redirectAfterLogin(data);
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {
@@ -91,15 +125,35 @@ export default function LoginPage() {
           <h1 className="text-xl font-semibold text-text-primary">Smart Campus</h1>
           <p className="text-sm text-text-muted mt-1">Operations Hub</p>
         </div>
+
         <div className="bg-white border border-border rounded-lg p-6">
           <h2 className="text-base font-semibold text-text-primary mb-4">Sign in</h2>
-          {error && <div className="mb-4 p-2.5 bg-red-50 border border-red-200 rounded text-xs text-danger">{error}</div>}
+          {error && (
+            <div className="mb-4 p-2.5 bg-red-50 border border-red-200 rounded text-xs text-danger">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-3">
-            <Input label="University Email" type="email" required value={form.universityEmailAddress}
-              onChange={e => setForm({ ...form, universityEmailAddress: e.target.value })} placeholder="you@uni.com" />
-            <Input label="Password" type="password" required value={form.password}
-              onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••" />
-            <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</Button>
+            <Input
+              label="University Email"
+              type="email"
+              required
+              value={form.universityEmailAddress}
+              onChange={(event) => setForm({ ...form, universityEmailAddress: event.target.value })}
+              placeholder="you@uni.com"
+            />
+            <Input
+              label="Password"
+              type="password"
+              required
+              value={form.password}
+              onChange={(event) => setForm({ ...form, password: event.target.value })}
+              placeholder="Enter your password"
+            />
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
+            </Button>
           </form>
 
           {googleClientId && (
@@ -109,7 +163,7 @@ export default function LoginPage() {
                 <span className="text-xs text-text-muted">or</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
-              <div id="google-signin-btn" className="flex justify-center">
+              <div id="google-signin-btn" className="flex justify-center min-h-10">
                 {googleLoading && <p className="text-xs text-text-muted">Signing in with Google...</p>}
               </div>
             </>

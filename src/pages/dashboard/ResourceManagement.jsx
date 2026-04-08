@@ -35,7 +35,7 @@ export default function ResourceManagement() {
     setLoading(true);
     searchResources({ resourceType: typeFilter || undefined, status: statusFilter || undefined, page, size: 10 })
       .then(res => setData(res.data.data || { content: [] }))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   };
 
@@ -66,6 +66,14 @@ export default function ResourceManagement() {
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
+  const validateForm = () => {
+    if (!form.resourceCode.trim()) return 'Resource Code is required';
+    if (!form.resourceName.trim()) return 'Resource Name is required';
+    if (!form.resourceType) return 'Resource Type is required';
+    if (form.capacity && isNaN(form.capacity)) return 'Capacity must be a valid number';
+    return '';
+  };
+
   const addWindow = () => setForm(f => ({ ...f, availabilityWindows: [...f.availabilityWindows, { dayOfWeek: 'MONDAY', startTime: '08:00', endTime: '18:00' }] }));
   const removeWindow = (i) => setForm(f => ({ ...f, availabilityWindows: f.availabilityWindows.filter((_, idx) => idx !== i) }));
   const updateWindow = (i, k, v) => setForm(f => ({
@@ -76,18 +84,41 @@ export default function ResourceManagement() {
   const handleSave = async (e) => {
     e.preventDefault();
     setFormError('');
+
+    // Validate form
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = { ...form };
-      if (payload.capacity) payload.capacity = parseInt(payload.capacity, 10);
-      else delete payload.capacity;
-      if (editId) await updateResource(editId, payload);
-      else await createResource(payload);
+      if (payload.capacity) {
+        payload.capacity = parseInt(payload.capacity, 10);
+        if (isNaN(payload.capacity)) {
+          setFormError('Capacity must be a valid number');
+          setSaving(false);
+          return;
+        }
+      } else {
+        delete payload.capacity;
+      }
+      if (editId) {
+        await updateResource(editId, payload);
+      } else {
+        await createResource(payload);
+      }
       setFormOpen(false);
       load();
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Failed to save resource');
-    } finally { setSaving(false); }
+      const errorMsg = err.response?.data?.message || (err.response?.status === 403 ? 'You do not have permission to perform this action' : 'Failed to save resource');
+      setFormError(errorMsg);
+      console.error('Resource save error:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleToggleStatus = async (r) => {
@@ -95,15 +126,24 @@ export default function ResourceManagement() {
     try {
       await updateResourceStatus(r.id, newStatus);
       load();
-    } catch {}
+    } catch (err) {
+      console.error('Failed to update resource status:', err);
+      alert(err.response?.data?.message || 'Failed to update resource status');
+    }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this resource?')) return;
     setDeleting(id);
     try {
       await deleteResource(id);
       load();
-    } catch {} finally { setDeleting(null); }
+    } catch (err) {
+      console.error('Failed to delete resource:', err);
+      alert(err.response?.data?.message || 'Failed to delete resource');
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const resources = data.content || [];

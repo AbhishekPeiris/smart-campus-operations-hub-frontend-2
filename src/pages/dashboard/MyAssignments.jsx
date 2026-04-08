@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { getAllTickets } from '../../api/tickets';
 import { getStatusBadge, getPriorityBadge, formatDate, TICKET_STATUSES } from '../../utils/constants';
 import Card from '../../components/common/Card';
@@ -18,10 +18,11 @@ export default function MyAssignments() {
 
   useEffect(() => {
     getAllTickets(0, 200).then(res => {
-      const mine = (res.data.data?.content || []).filter(t => t.assignedTechnicianId === user.userId || t.assignedTechnicianUserId === user.userId);
+      const currentUserId = user?.id || user?.userId;
+      const mine = (res.data.data?.content || []).filter(t => t.assignedTechnicianId === currentUserId || t.assignedTechnicianUserId === currentUserId);
       setTickets(mine);
     }).catch(() => {}).finally(() => setLoading(false));
-  }, [user.userId]);
+  }, [user?.id, user?.userId]);
 
   const filtered = statusFilter === 'ALL' ? tickets : tickets.filter(t => t.status === statusFilter);
 

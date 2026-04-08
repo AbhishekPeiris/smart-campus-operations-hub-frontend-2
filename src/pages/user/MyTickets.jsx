@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { getAllTickets } from '../../api/tickets';
 import { getStatusBadge, getPriorityBadge, getCategoryLabel, formatDate, TICKET_STATUSES } from '../../utils/constants';
 import Card from '../../components/common/Card';

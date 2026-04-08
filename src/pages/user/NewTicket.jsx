@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { createTicket } from '../../api/tickets';
 import { INCIDENT_CATEGORIES, PRIORITY_LEVELS, RESOURCE_TYPES } from '../../utils/constants';
 import Input from '../../components/common/Input';

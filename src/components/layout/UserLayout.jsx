@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import NotificationPanel from '../common/NotificationPanel';
-import { LayoutDashboard, Plus, FileText, User, LogOut, GraduationCap, CalendarDays, Building2, CalendarPlus } from 'lucide-react';
+import { LayoutDashboard, Plus, FileText, User, LogOut, GraduationCap, CalendarDays, Building2, CalendarPlus, Bell } from 'lucide-react';
 
 export default function UserLayout() {
   const { user, logout } = useAuth();
@@ -15,6 +15,7 @@ export default function UserLayout() {
     { to: '/portal/bookings', label: 'My Bookings', icon: CalendarDays },
     { to: '/portal/tickets', label: 'My Tickets', icon: FileText },
     { to: '/portal/new-ticket', label: 'Report Incident', icon: Plus },
+    { to: '/portal/notifications', label: 'Notifications', icon: Bell },
     { to: '/portal/profile', label: 'Profile', icon: User },
   ];
 

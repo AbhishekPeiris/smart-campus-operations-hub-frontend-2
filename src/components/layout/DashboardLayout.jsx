@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import NotificationPanel from '../common/NotificationPanel';
 import {
   LayoutDashboard, Ticket, Users, ChevronLeft, ChevronRight,
