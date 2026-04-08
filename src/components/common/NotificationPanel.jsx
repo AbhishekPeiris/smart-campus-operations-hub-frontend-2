@@ -163,7 +163,7 @@ export default function NotificationPanel() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-3 flex max-h-[32rem] w-[22rem] flex-col overflow-hidden rounded-[24px] border border-border bg-white/95 shadow-[0_28px_48px_rgba(16,36,62,0.16)] backdrop-blur-xl sm:w-[25rem]">
+        <div className="absolute right-0 top-full z-[9999] mt-3 flex max-h-[32rem] w-[22rem] flex-col overflow-hidden rounded-[24px] border border-border bg-white/95 shadow-[0_28px_48px_rgba(16,36,62,0.16)] backdrop-blur-xl sm:w-[25rem]">
           <div className="border-b border-border bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,248,255,0.96))] px-5 py-4 shrink-0">
             <div className="flex items-center justify-between gap-3">
               <div>

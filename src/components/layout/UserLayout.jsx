@@ -24,7 +24,7 @@ export default function UserLayout() {
   return (
     <div className="min-h-screen p-4 lg:p-5">
       <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1680px] flex-col gap-5">
-        <header className="surface-panel sticky top-4 z-30 overflow-hidden px-5 py-5">
+        <header className="surface-panel sticky top-4 z-30 overflow-visible px-5 py-5">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-4">
               <Link to="/portal" className="flex items-center gap-3">
@@ -67,11 +67,10 @@ export default function UserLayout() {
               <Link
                 key={n.to}
                 to={n.to}
-                className={`inline-flex items-center gap-2 rounded-[16px] border px-4 py-3 text-sm font-semibold transition-all ${
-                  isActive(n.to)
+                className={`inline-flex items-center gap-2 rounded-[16px] border px-4 py-3 text-sm font-semibold transition-all ${isActive(n.to)
                     ? 'border-primary-200 bg-primary-50 text-primary-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.78)]'
                     : 'border-border bg-white/80 text-text-secondary hover:border-primary-100 hover:bg-white hover:text-text-primary'
-                }`}
+                  }`}
               >
                 <n.icon size={16} />
                 <span>{n.label}</span>
