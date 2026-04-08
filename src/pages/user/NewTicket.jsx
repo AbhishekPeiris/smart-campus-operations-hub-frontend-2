@@ -46,6 +46,11 @@ export default function NewTicket() {
   });
 
   useEffect(() => {
+    if (!localStorage.getItem('accessToken')) {
+      setResourcesLoading(false);
+      return;
+    }
+
     searchResources({ status: 'ACTIVE', size: 200 })
       .then((res) => {
         const payload = extractApiData(res);
