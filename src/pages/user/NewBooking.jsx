@@ -26,7 +26,6 @@ import {
 } from '../../utils/apiData';
 
 const today = new Date().toISOString().split('T')[0];
-
 const activeScheduleStatuses = new Set(['PENDING', 'APPROVED']);
 
 export default function NewBooking() {
@@ -190,239 +189,243 @@ export default function NewBooking() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-5">
-        <h1 className="text-lg font-semibold">New Booking Request</h1>
-        <p className="text-sm text-text-muted mt-0.5">
-          Choose a resource, review that day's schedule, and submit after a conflict check.
-        </p>
+    <div className="app-page max-w-6xl">
+      <div className="page-header">
+        <div>
+          <p className="page-kicker">Reservation Request</p>
+          <h1 className="page-title">New Booking Request</h1>
+          <p className="page-subtitle">Choose a resource, review the day schedule, run a conflict check, and submit with confidence.</p>
+        </div>
       </div>
 
-      <div className="space-y-5">
-        <Card className="p-6">
-          {error && (
-            <div className="mb-4 p-2.5 bg-red-50 border border-red-200 rounded text-xs text-danger">
-              {error}
-            </div>
-          )}
+      <Card className="section-card overflow-hidden">
+        <div className="grid gap-0 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="px-6 py-6">
+            {error && (
+              <div className="soft-alert mb-5 border-red-200 bg-red-50 text-danger">
+                {error}
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Resource *</label>
-              <select
-                value={form.resourceId}
-                onChange={setField('resourceId')}
-                required
-                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">Select a resource...</option>
-                {resources.map((resource) => (
-                  <option key={resource.id} value={resource.id}>
-                    {resource.resourceName} ({resource.resourceCode}) - {resource.location || 'No location'}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-muted mb-2">Resource</label>
+                <select
+                  value={form.resourceId}
+                  onChange={setField('resourceId')}
+                  required
+                  className="w-full px-4 py-3 text-sm"
+                >
+                  <option value="">Select a resource...</option>
+                  {resources.map((resource) => (
+                    <option key={resource.id} value={resource.id}>
+                      {resource.resourceName} ({resource.resourceCode}) - {resource.location || 'No location'}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {selectedResource && (
-              <div className="rounded-lg border border-border bg-surface-alt px-4 py-3">
-                <div className="flex flex-wrap gap-4 text-xs text-text-secondary">
-                  <span><strong>Type:</strong> {getResourceTypeLabel(selectedResource.resourceType)}</span>
-                  <span><strong>Capacity:</strong> {selectedResource.capacity || '-'}</span>
-                  <span><strong>Status:</strong> {selectedResource.status || '-'}</span>
+              {selectedResource && (
+                <div className="surface-panel-muted px-4 py-4">
+                  <div className="flex flex-wrap gap-4 text-sm text-text-secondary">
+                    <span><strong>Type:</strong> {getResourceTypeLabel(selectedResource.resourceType)}</span>
+                    <span><strong>Capacity:</strong> {selectedResource.capacity || '-'}</span>
+                    <span><strong>Status:</strong> {selectedResource.status || '-'}</span>
+                  </div>
+                  {selectedResource.location && (
+                    <p className="mt-3 text-sm text-text-secondary flex items-center gap-2">
+                      <MapPin size={14} />
+                      {selectedResource.location}
+                    </p>
+                  )}
+                  {selectedResource.availabilityWindows?.length > 0 && (
+                    <p className="mt-3 text-sm text-text-secondary">
+                      <strong>Availability:</strong>{' '}
+                      {selectedResource.availabilityWindows
+                        .map((window) => `${window.dayOfWeek?.slice(0, 3)} ${formatTimeRange(window.startTime, window.endTime)}`)
+                        .join(', ')}
+                    </p>
+                  )}
                 </div>
-                {selectedResource.location && (
-                  <p className="text-xs text-text-secondary mt-2 flex items-center gap-1">
-                    <MapPin size={12} />
-                    {selectedResource.location}
-                  </p>
-                )}
-                {selectedResource.availabilityWindows?.length > 0 && (
-                  <p className="text-xs text-text-secondary mt-2">
-                    <strong>Availability:</strong>{' '}
-                    {selectedResource.availabilityWindows
-                      .map((window) => `${window.dayOfWeek?.slice(0, 3)} ${formatTimeRange(window.startTime, window.endTime)}`)
-                      .join(', ')}
-                  </p>
-                )}
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input
+                  label="Booking Date"
+                  type="date"
+                  min={today}
+                  value={form.bookingDate}
+                  onChange={setField('bookingDate')}
+                  required
+                />
+                <Input
+                  label="Start Time"
+                  type="time"
+                  value={form.startTime}
+                  onChange={setField('startTime')}
+                  required
+                />
+                <Input
+                  label="End Time"
+                  type="time"
+                  value={form.endTime}
+                  onChange={setField('endTime')}
+                  required
+                />
               </div>
-            )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Input
-                label="Booking Date *"
-                type="date"
-                min={today}
-                value={form.bookingDate}
-                onChange={setField('bookingDate')}
+              <Textarea
+                label="Purpose"
+                value={form.purpose}
+                onChange={setField('purpose')}
                 required
+                placeholder="Describe why you need this booking..."
               />
+
               <Input
-                label="Start Time *"
-                type="time"
-                value={form.startTime}
-                onChange={setField('startTime')}
-                required
+                label="Expected Attendees"
+                type="number"
+                min="1"
+                value={form.expectedAttendees}
+                onChange={setField('expectedAttendees')}
+                placeholder="Optional"
               />
-              <Input
-                label="End Time *"
-                type="time"
-                value={form.endTime}
-                onChange={setField('endTime')}
-                required
-              />
-            </div>
 
-            <Textarea
-              label="Purpose *"
-              value={form.purpose}
-              onChange={setField('purpose')}
-              required
-              placeholder="Describe why you need this booking..."
-            />
+              {attendeeWarning && (
+                <div className="soft-alert border-amber-200 bg-amber-50 text-amber-700 flex items-start gap-2">
+                  <AlertTriangle size={15} className="mt-0.5 shrink-0" />
+                  <span>{attendeeWarning}</span>
+                </div>
+              )}
 
-            <Input
-              label="Expected Attendees"
-              type="number"
-              min="1"
-              value={form.expectedAttendees}
-              onChange={setField('expectedAttendees')}
-              placeholder="Optional"
-            />
-
-            {attendeeWarning && (
-              <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 flex items-start gap-2">
-                <AlertTriangle size={14} className="shrink-0 mt-0.5" />
-                <span>{attendeeWarning}</span>
+              <div className="flex flex-wrap justify-end gap-3 pt-2">
+                <Button type="button" variant="secondary" onClick={() => navigate(-1)}>Cancel</Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleCheckConflict}
+                  disabled={checkingConflict}
+                >
+                  {checkingConflict ? 'Checking...' : 'Check for conflicts'}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loading || !conflictChecked}
+                >
+                  {loading ? 'Submitting...' : 'Submit request'}
+                </Button>
               </div>
-            )}
-
-            <div className="flex flex-wrap justify-end gap-3 pt-2">
-              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>Cancel</Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleCheckConflict}
-                disabled={checkingConflict}
-              >
-                {checkingConflict ? 'Checking...' : 'Check for conflicts'}
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading || !conflictChecked}
-              >
-                {loading ? 'Submitting...' : 'Submit request'}
-              </Button>
-            </div>
-          </form>
-        </Card>
-
-        <Card className="p-5">
-          <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-            <div>
-              <h2 className="text-sm font-semibold">Schedule preview</h2>
-              <p className="text-xs text-text-muted mt-0.5">
-                Existing pending and approved bookings for the selected resource and date.
-              </p>
-            </div>
-            {form.bookingDate && (
-              <span className="text-xs text-text-muted">
-                {formatDateShort(form.bookingDate)}
-              </span>
-            )}
+            </form>
           </div>
 
-          {!form.resourceId || !form.bookingDate ? (
-            <p className="text-sm text-text-muted py-6">
-              Select a resource and date to see that day's bookings.
-            </p>
-          ) : scheduleLoading ? (
-            <div className="flex justify-center py-8"><Spinner className="h-6 w-6" /></div>
-          ) : schedule.length === 0 ? (
-            <p className="text-sm text-text-muted py-6">
-              No active bookings found for this resource on the selected date.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {schedule.map((booking) => {
-                const statusBadge = getBookingStatusBadge(booking.status);
-
-                return (
-                  <div key={booking.id} className="rounded-lg border border-border px-4 py-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-medium text-text-primary">
-                          {formatTimeRange(booking.startTime, booking.endTime)}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-text-muted">
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {booking.requestedByName || 'Unknown requester'}
-                          </span>
-                          {booking.expectedAttendees ? (
-                            <span className="flex items-center gap-1">
-                              <Users size={12} />
-                              {booking.expectedAttendees} attendees
-                            </span>
-                          ) : null}
-                        </div>
-                        {booking.purpose && (
-                          <p className="text-xs text-text-secondary mt-2">{booking.purpose}</p>
-                        )}
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-[11px] font-medium ${statusBadge.color}`}>
-                        {statusBadge.label}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+          <div className="border-l border-border bg-[linear-gradient(180deg,rgba(239,245,252,0.82),rgba(233,240,248,0.95))] px-6 py-6 space-y-5">
+            <div>
+              <p className="page-kicker">Schedule Preview</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">Same-day visibility before you submit</h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                Existing pending and approved bookings for the selected resource and date appear here.
+              </p>
             </div>
-          )}
-        </Card>
 
-        {conflictResult && (
-          <Card className="p-5">
-            <div className={`rounded-lg px-4 py-4 text-sm flex items-start gap-3 ${conflictResult.conflict ? 'bg-red-50 border border-red-200 text-danger' : 'bg-emerald-50 border border-emerald-200 text-emerald-700'}`}>
-              {conflictResult.conflict ? (
-                <AlertTriangle size={18} className="shrink-0 mt-0.5" />
-              ) : (
-                <CheckCircle size={18} className="shrink-0 mt-0.5" />
-              )}
-              <div className="min-w-0">
-                {conflictResult.conflict ? (
-                  <>
-                    <p className="font-medium">Scheduling conflict detected.</p>
-                    <p className="mt-1 text-xs">
-                      Pick a different time slot or date before submitting this request.
-                    </p>
-                    {conflictResult.conflictingBookings?.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        {conflictResult.conflictingBookings.map((booking) => (
-                          <div key={booking.id} className="rounded-md bg-white/70 px-3 py-2 text-xs">
-                            <div className="flex items-center gap-2">
-                              <CalendarDays size={12} />
-                              <span>{formatTimeRange(booking.startTime, booking.endTime)}</span>
-                              <span className="text-text-muted">-</span>
-                              <span>{booking.requestedByName || 'Unknown requester'}</span>
-                              <span className="text-text-muted">({booking.status})</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <p className="font-medium">No conflicts found.</p>
-                    <p className="mt-1 text-xs">This time slot is currently available to request.</p>
-                  </>
+            <Card className="surface-panel-muted p-4">
+              <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+                <p className="detail-tile__label">Selected Day</p>
+                {form.bookingDate && (
+                  <span className="text-sm font-semibold text-text-primary">{formatDateShort(form.bookingDate)}</span>
                 )}
               </div>
-            </div>
-          </Card>
-        )}
-      </div>
+
+              {!form.resourceId || !form.bookingDate ? (
+                <p className="py-6 text-sm text-text-muted">
+                  Select a resource and date to see that day's bookings.
+                </p>
+              ) : scheduleLoading ? (
+                <div className="flex justify-center py-8"><Spinner className="h-6 w-6" /></div>
+              ) : schedule.length === 0 ? (
+                <p className="py-6 text-sm text-text-muted">
+                  No active bookings found for this resource on the selected date.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {schedule.map((booking) => {
+                    const statusBadge = getBookingStatusBadge(booking.status);
+
+                    return (
+                      <div key={booking.id} className="rounded-[18px] border border-border bg-white/85 px-4 py-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-text-primary">
+                              {formatTimeRange(booking.startTime, booking.endTime)}
+                            </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-muted">
+                              <span className="flex items-center gap-1">
+                                <Clock size={12} />
+                                {booking.requestedByName || 'Unknown requester'}
+                              </span>
+                              {booking.expectedAttendees ? (
+                                <span className="flex items-center gap-1">
+                                  <Users size={12} />
+                                  {booking.expectedAttendees} attendees
+                                </span>
+                              ) : null}
+                            </div>
+                            {booking.purpose && (
+                              <p className="mt-2 text-xs text-text-secondary">{booking.purpose}</p>
+                            )}
+                          </div>
+                          <span className={`rounded-[12px] border border-transparent px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${statusBadge.color}`}>
+                            {statusBadge.label}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </Card>
+
+            {conflictResult && (
+              <Card className={`p-5 ${conflictResult.conflict ? 'border-red-200 bg-red-50/75' : 'border-emerald-200 bg-emerald-50/80'}`}>
+                <div className={`flex items-start gap-3 text-sm ${conflictResult.conflict ? 'text-danger' : 'text-emerald-700'}`}>
+                  {conflictResult.conflict ? (
+                    <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+                  ) : (
+                    <CheckCircle size={18} className="mt-0.5 shrink-0" />
+                  )}
+                  <div>
+                    {conflictResult.conflict ? (
+                      <>
+                        <p className="font-semibold">Scheduling conflict detected.</p>
+                        <p className="mt-1 text-xs">Pick a different time slot or date before submitting this request.</p>
+                        {conflictResult.conflictingBookings?.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {conflictResult.conflictingBookings.map((booking) => (
+                              <div key={booking.id} className="rounded-[14px] bg-white/80 px-3 py-3 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <CalendarDays size={12} />
+                                  <span>{formatTimeRange(booking.startTime, booking.endTime)}</span>
+                                  <span className="text-text-muted">-</span>
+                                  <span>{booking.requestedByName || 'Unknown requester'}</span>
+                                  <span className="text-text-muted">({booking.status})</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold">No conflicts found.</p>
+                        <p className="mt-1 text-xs">This time slot is currently available to request.</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }

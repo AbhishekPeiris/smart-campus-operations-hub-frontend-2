@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap } from 'lucide-react';
+import { ArrowRight, CheckCircle2, GraduationCap, ShieldCheck, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
 import { getGoogleOAuthConfig, googleLogin, login } from '../../api/auth';
 import Input from '../../components/common/Input';
@@ -116,25 +116,59 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-            <GraduationCap size={24} className="text-white" />
+    <div className="auth-shell">
+      <div className="auth-grid">
+        <aside className="auth-showcase">
+          <div className="relative z-10">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-[20px] border border-white/16 bg-white/12">
+              <GraduationCap size={26} className="text-white" />
+            </div>
+            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.22em] text-white/72">Enterprise Campus Operations</p>
+            <h1 className="mt-3 max-w-lg text-4xl font-semibold tracking-tight text-balance">
+              A cleaner control center for tickets, bookings, and campus service visibility.
+            </h1>
+            <p className="mt-4 max-w-xl text-base leading-7 text-white/74">
+              Access the operations workspace built for students, technicians, and administrators with clear workflows and structured status tracking.
+            </p>
           </div>
-          <h1 className="text-xl font-semibold text-text-primary">Smart Campus</h1>
-          <p className="text-sm text-text-muted mt-1">Operations Hub</p>
-        </div>
 
-        <div className="bg-white border border-border rounded-lg p-6">
-          <h2 className="text-base font-semibold text-text-primary mb-4">Sign in</h2>
+          <div className="relative z-10 space-y-4">
+            {[
+              { icon: ShieldCheck, title: 'Trusted sign-in', text: 'University authentication with role-aware routing after login.' },
+              { icon: Sparkles, title: 'Unified workflow', text: 'One place to report incidents, review bookings, and monitor response activity.' },
+              { icon: CheckCircle2, title: 'Operational clarity', text: 'Structured cards, cleaner tables, and focused detail views across the product.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-[24px] border border-white/14 bg-white/10 px-5 py-4 backdrop-blur-sm">
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-white/12 text-white">
+                    <item.icon size={18} />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{item.title}</p>
+                    <p className="mt-1 text-sm leading-6 text-white/72">{item.text}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <div className="auth-card">
+          <div className="mb-8">
+            <p className="page-kicker">Welcome Back</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-text-primary">Sign in to continue</h2>
+            <p className="mt-2 text-sm leading-6 text-text-secondary">
+              Use your campus account to enter the Smart Campus operations workspace.
+            </p>
+          </div>
+
           {error && (
-            <div className="mb-4 p-2.5 bg-red-50 border border-red-200 rounded text-xs text-danger">
+            <div className="soft-alert mb-5 border-red-200 bg-red-50 text-danger">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="University Email"
               type="email"
@@ -158,20 +192,24 @@ export default function LoginPage() {
 
           {googleClientId && (
             <>
-              <div className="flex items-center gap-3 my-4">
+              <div className="flex items-center gap-3 my-6">
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-text-muted">or</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-text-muted">or continue with</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
-              <div id="google-signin-btn" className="flex justify-center min-h-10">
+              <div id="google-signin-btn" className="flex min-h-10 justify-center">
                 {googleLoading && <p className="text-xs text-text-muted">Signing in with Google...</p>}
               </div>
             </>
           )}
 
-          <p className="mt-4 text-xs text-center text-text-muted">
-            Don't have an account? <Link to="/register" className="text-primary-600 hover:underline">Register</Link>
-          </p>
+          <div className="mt-8 flex items-center justify-between gap-3 rounded-[20px] border border-border bg-surface-alt/60 px-4 py-4 text-sm text-text-secondary">
+            <span>Need a new account?</span>
+            <Link to="/register" className="inline-flex items-center gap-1 font-semibold text-primary-700 hover:text-primary-800">
+              Register
+              <ArrowRight size={15} />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

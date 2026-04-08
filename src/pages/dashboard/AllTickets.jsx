@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllTickets } from '../../api/tickets';
 import { getStatusBadge, getPriorityBadge, getCategoryLabel, formatDate, TICKET_STATUSES, PRIORITY_LEVELS } from '../../utils/constants';
@@ -17,74 +17,91 @@ export default function AllTickets() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [priorityFilter, setPriorityFilter] = useState('ALL');
 
-  const load = (p) => {
+  const load = useCallback((nextPage) => {
     setLoading(true);
-    getAllTickets(p, 15).then(res => setData(res.data.data || { content: [], totalPages: 0 }))
-      .catch(() => {}).finally(() => setLoading(false));
-  };
+    getAllTickets(nextPage, 15)
+      .then((res) => setData(res.data.data || { content: [], totalPages: 0 }))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
-  useEffect(() => { load(page); }, [page]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      load(page);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [load, page]);
 
   let filtered = data.content || [];
-  if (statusFilter !== 'ALL') filtered = filtered.filter(t => t.status === statusFilter);
-  if (priorityFilter !== 'ALL') filtered = filtered.filter(t => t.priorityLevel === priorityFilter);
+  if (statusFilter !== 'ALL') filtered = filtered.filter((ticket) => ticket.status === statusFilter);
+  if (priorityFilter !== 'ALL') filtered = filtered.filter((ticket) => ticket.priorityLevel === priorityFilter);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-lg font-semibold">All Tickets</h1>
-        <div className="flex items-center gap-2">
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="text-xs border border-border rounded-md px-2 py-1.5 bg-white">
-            <option value="ALL">All Statuses</option>
-            {TICKET_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-          </select>
-          <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}
-            className="text-xs border border-border rounded-md px-2 py-1.5 bg-white">
-            <option value="ALL">All Priorities</option>
-            {PRIORITY_LEVELS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-          </select>
+    <div className="app-page">
+      <div className="page-header">
+        <div>
+          <p className="page-kicker">Service Desk</p>
+          <h1 className="page-title">All Tickets</h1>
+          <p className="page-subtitle">Review every reported issue with structured filters and a cleaner operational queue.</p>
         </div>
       </div>
-      <Card>
-        {loading ? <div className="flex justify-center py-16"><Spinner className="h-8 w-8" /></div> :
-          filtered.length === 0 ? <EmptyState message="No tickets found" icon={Ticket} /> : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-surface-alt text-xs text-text-muted">
-                      <th className="text-left px-4 py-2 font-medium">Code</th>
-                      <th className="text-left px-4 py-2 font-medium">Title</th>
-                      <th className="text-left px-4 py-2 font-medium">Category</th>
-                      <th className="text-left px-4 py-2 font-medium">Priority</th>
-                      <th className="text-left px-4 py-2 font-medium">Status</th>
-                      <th className="text-left px-4 py-2 font-medium">Reporter</th>
-                      <th className="text-left px-4 py-2 font-medium">Assigned</th>
-                      <th className="text-left px-4 py-2 font-medium">Created</th>
+
+      <Card className="toolbar-panel">
+        <div className="filter-grid">
+          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="text-sm">
+            <option value="ALL">All Statuses</option>
+            {TICKET_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
+          </select>
+          <select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} className="text-sm">
+            <option value="ALL">All Priorities</option>
+            {PRIORITY_LEVELS.map((priority) => <option key={priority.value} value={priority.value}>{priority.label}</option>)}
+          </select>
+        </div>
+      </Card>
+
+      <Card className="section-card">
+        {loading ? (
+          <div className="flex justify-center py-16"><Spinner className="h-8 w-8" /></div>
+        ) : filtered.length === 0 ? (
+          <EmptyState message="No tickets found" icon={Ticket} />
+        ) : (
+          <>
+            <div className="app-table-wrap">
+              <table className="app-table">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Reporter</th>
+                    <th>Assigned</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((ticket) => (
+                    <tr key={ticket.id} className="cursor-pointer" onClick={() => navigate(`/dashboard/tickets/${ticket.id}`)}>
+                      <td className="font-mono text-xs text-text-muted">{ticket.ticketCode}</td>
+                      <td className="max-w-[220px] truncate font-semibold text-text-primary">{ticket.ticketTitle}</td>
+                      <td className="text-xs text-text-secondary">{getCategoryLabel(ticket.incidentCategory)}</td>
+                      <td><Badge className={getPriorityBadge(ticket.priorityLevel).color}>{getPriorityBadge(ticket.priorityLevel).label}</Badge></td>
+                      <td><Badge className={getStatusBadge(ticket.status).color}>{getStatusBadge(ticket.status).label}</Badge></td>
+                      <td className="text-xs text-text-muted">{ticket.createdByName}</td>
+                      <td className="text-xs text-text-muted">{ticket.assignedTechnicianName || '-'}</td>
+                      <td className="text-xs text-text-muted">{formatDate(ticket.createdAt)}</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {filtered.map(t => (
-                      <tr key={t.id} className="hover:bg-surface-alt/50 cursor-pointer" onClick={() => navigate(`/dashboard/tickets/${t.id}`)}>
-                        <td className="px-4 py-2.5 text-xs text-text-muted font-mono">{t.ticketCode}</td>
-                        <td className="px-4 py-2.5 font-medium max-w-[180px] truncate">{t.ticketTitle}</td>
-                        <td className="px-4 py-2.5 text-xs">{getCategoryLabel(t.incidentCategory)}</td>
-                        <td className="px-4 py-2.5"><Badge className={getPriorityBadge(t.priorityLevel).color}>{getPriorityBadge(t.priorityLevel).label}</Badge></td>
-                        <td className="px-4 py-2.5"><Badge className={getStatusBadge(t.status).color}>{getStatusBadge(t.status).label}</Badge></td>
-                        <td className="px-4 py-2.5 text-xs text-text-muted">{t.createdByName}</td>
-                        <td className="px-4 py-2.5 text-xs text-text-muted">{t.assignedTechnicianName || '—'}</td>
-                        <td className="px-4 py-2.5 text-xs text-text-muted">{formatDate(t.createdAt)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="px-4 pb-3">
-                <Pagination currentPage={data.currentPage} totalPages={data.totalPages} onPageChange={setPage} />
-              </div>
-            </>
-          )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="px-5 pb-4">
+              <Pagination currentPage={data.currentPage} totalPages={data.totalPages} onPageChange={setPage} />
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );

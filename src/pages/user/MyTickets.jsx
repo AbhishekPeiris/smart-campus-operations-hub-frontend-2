@@ -16,46 +16,55 @@ export default function MyTickets() {
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
-    getAllTickets(0, 200).then(res => {
-      const mine = (res.data.data?.content || []).filter(t => t.createdByUserId === user.userId);
-      setTickets(mine);
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, [user.userId]);
+    getAllTickets(0, 200)
+      .then((res) => {
+        const mine = (res.data.data?.content || []).filter((ticket) => ticket.createdByUserId === user.userId || ticket.createdByUserId === user.id);
+        setTickets(mine);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user.userId, user.id]);
 
-  const filtered = statusFilter === 'ALL' ? tickets : tickets.filter(t => t.status === statusFilter);
+  const filtered = statusFilter === 'ALL' ? tickets : tickets.filter((ticket) => ticket.status === statusFilter);
 
   if (loading) return <div className="flex justify-center py-20"><Spinner className="h-8 w-8" /></div>;
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-lg font-semibold">My Tickets</h1>
-        <div className="flex items-center gap-2">
-          <Filter size={14} className="text-text-muted" />
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="text-xs border border-border rounded-md px-2 py-1.5 bg-white">
+    <div className="app-page">
+      <div className="page-header">
+        <div>
+          <p className="page-kicker">Incident Desk</p>
+          <h1 className="page-title">My Tickets</h1>
+          <p className="page-subtitle">Review every incident you have reported and quickly jump into the detailed ticket timeline.</p>
+        </div>
+        <div className="surface-panel-muted flex items-center gap-2 px-4 py-3">
+          <Filter size={14} className="text-primary-700" />
+          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="min-w-[190px] text-sm">
             <option value="ALL">All Statuses</option>
-            {TICKET_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            {TICKET_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
           </select>
         </div>
       </div>
-      <Card>
-        {filtered.length === 0 ? <EmptyState message="No tickets found" icon={FileText} /> : (
-          <div className="divide-y divide-border">
-            {filtered.map(t => (
-              <Link key={t.id} to={`/portal/tickets/${t.id}`} className="block px-4 py-3.5 hover:bg-surface-alt transition-colors">
+
+      <Card className="section-card">
+        {filtered.length === 0 ? (
+          <EmptyState message="No tickets found" icon={FileText} />
+        ) : (
+          <div className="app-list">
+            {filtered.map((ticket) => (
+              <Link key={ticket.id} to={`/portal/tickets/${ticket.id}`} className="app-list-item block">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-text-primary">{t.ticketTitle}</p>
-                    <div className="flex items-center gap-3 mt-1.5 text-xs text-text-muted">
-                      <span>{t.ticketCode}</span>
-                      <span>{getCategoryLabel(t.incidentCategory)}</span>
-                      <span>{formatDate(t.createdAt)}</span>
+                    <p className="text-sm font-semibold text-text-primary">{ticket.ticketTitle}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-muted">
+                      <span>{ticket.ticketCode}</span>
+                      <span>{getCategoryLabel(ticket.incidentCategory)}</span>
+                      <span>{formatDate(ticket.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge className={getPriorityBadge(t.priorityLevel).color}>{getPriorityBadge(t.priorityLevel).label}</Badge>
-                    <Badge className={getStatusBadge(t.status).color}>{getStatusBadge(t.status).label}</Badge>
+                    <Badge className={getPriorityBadge(ticket.priorityLevel).color}>{getPriorityBadge(ticket.priorityLevel).label}</Badge>
+                    <Badge className={getStatusBadge(ticket.status).color}>{getStatusBadge(ticket.status).label}</Badge>
                   </div>
                 </div>
               </Link>

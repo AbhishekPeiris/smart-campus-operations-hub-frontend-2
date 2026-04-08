@@ -27,92 +27,129 @@ export default function DashboardOverview() {
       getAllTickets(0, 200).catch(() => ({ data: { data: { content: [], totalElements: 0 } } })),
       getAllUsers(0, 1).catch(() => ({ data: { data: { totalElements: 0 } } })),
     ];
+
     if (isAdmin) {
       promises.push(getAllBookings({ size: 200 }).catch(() => ({ data: { data: { content: [], totalElements: 0 } } })));
       promises.push(searchResources({ size: 1 }).catch(() => ({ data: { data: { totalElements: 0 } } })));
     }
-    Promise.all(promises).then(([tRes, uRes, bRes, rRes]) => {
-      setTickets(tRes.data.data?.content || []);
-      setUserCount(uRes.data.data?.totalElements || 0);
-      if (isAdmin && bRes) {
-        const bContent = bRes.data.data?.content || [];
-        setBookingCount(bRes.data.data?.totalElements || bContent.length);
-        setPendingBookings(bContent.filter(b => b.status === 'PENDING').length);
-        setRecentBookings(bContent.slice(0, 5));
-      }
-      if (isAdmin && rRes) {
-        setResourceCount(rRes.data.data?.totalElements || 0);
-      }
-    }).finally(() => setLoading(false));
-  }, []);
 
-  if (loading) return <div className="flex justify-center py-20"><Spinner className="h-8 w-8" /></div>;
+    Promise.all(promises)
+      .then(([ticketRes, userRes, bookingRes, resourceRes]) => {
+        const ticketContent = ticketRes.data.data?.content || [];
+        setTickets(ticketContent);
+        setUserCount(userRes.data.data?.totalElements || 0);
+
+        if (isAdmin && bookingRes) {
+          const bookingContent = bookingRes.data.data?.content || [];
+          setBookingCount(bookingRes.data.data?.totalElements || bookingContent.length);
+          setPendingBookings(bookingContent.filter((booking) => booking.status === 'PENDING' || booking.currentStatus === 'PENDING').length);
+          setRecentBookings(bookingContent.slice(0, 5));
+        }
+
+        if (isAdmin && resourceRes) {
+          setResourceCount(resourceRes.data.data?.totalElements || 0);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [isAdmin]);
+
+  if (loading) {
+    return <div className="flex justify-center py-20"><Spinner className="h-8 w-8" /></div>;
+  }
 
   const counts = {
     total: tickets.length,
-    open: tickets.filter(t => t.status === 'OPEN').length,
-    inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
-    resolved: tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length,
-    critical: tickets.filter(t => t.priorityLevel === 'CRITICAL' && t.status !== 'RESOLVED' && t.status !== 'CLOSED').length,
+    open: tickets.filter((ticket) => ticket.status === 'OPEN').length,
+    inProgress: tickets.filter((ticket) => ticket.status === 'IN_PROGRESS').length,
+    resolved: tickets.filter((ticket) => ticket.status === 'RESOLVED' || ticket.status === 'CLOSED').length,
+    critical: tickets.filter((ticket) => ticket.priorityLevel === 'CRITICAL' && ticket.status !== 'RESOLVED' && ticket.status !== 'CLOSED').length,
   };
 
   const stats = [
     { label: 'Total Tickets', value: counts.total, icon: Ticket, bg: 'bg-primary-50', fg: 'text-primary-600' },
-    { label: 'Open', value: counts.open, icon: AlertTriangle, bg: 'bg-amber-50', fg: 'text-amber-600' },
+    { label: 'Open Issues', value: counts.open, icon: AlertTriangle, bg: 'bg-amber-50', fg: 'text-amber-600' },
     { label: 'In Progress', value: counts.inProgress, icon: Clock, bg: 'bg-blue-50', fg: 'text-blue-600' },
     { label: 'Resolved', value: counts.resolved, icon: CheckCircle, bg: 'bg-emerald-50', fg: 'text-emerald-600' },
     { label: 'Critical Active', value: counts.critical, icon: ShieldAlert, bg: 'bg-red-50', fg: 'text-red-600' },
     ...(isAdmin ? [
-      { label: 'Total Users', value: userCount, icon: Users, bg: 'bg-violet-50', fg: 'text-violet-600' },
-      { label: 'Resources', value: resourceCount, icon: Building2, bg: 'bg-cyan-50', fg: 'text-cyan-600' },
+      { label: 'Registered Users', value: userCount, icon: Users, bg: 'bg-violet-50', fg: 'text-violet-600' },
+      { label: 'Managed Resources', value: resourceCount, icon: Building2, bg: 'bg-cyan-50', fg: 'text-cyan-600' },
       { label: 'Pending Bookings', value: pendingBookings, icon: CalendarDays, bg: 'bg-orange-50', fg: 'text-orange-600' },
     ] : []),
   ];
 
-  const recent = [...tickets].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 8);
+  const recentTickets = [...tickets].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 8);
 
   return (
-    <div>
-      <h1 className="text-lg font-semibold mb-5">Dashboard Overview</h1>
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4 mb-6">
-        {stats.map(s => (
-          <Card key={s.label} className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${s.bg}`}><s.icon size={18} className={s.fg} /></div>
+    <div className="app-page">
+      <section className="hero-banner">
+        <div className="page-header">
+          <div>
+            <p className="page-kicker">Overview</p>
+            <h1 className="page-title">Campus operations at a glance</h1>
+            <p className="page-subtitle">
+              Monitor ticket throughput, booking review workload, and platform activity from a single operational surface.
+            </p>
+          </div>
+          <div className="surface-panel-muted min-w-[250px] px-4 py-4">
+            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-text-muted">Live Summary</p>
+            <p className="mt-2 text-lg font-semibold text-text-primary">{bookingCount} booking requests tracked</p>
+            <p className="mt-1 text-sm text-text-secondary">
+              {isAdmin
+                ? 'Administration view with full booking, resource, and user oversight.'
+                : 'Technician view focused on issue management and assignment execution.'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="stat-grid">
+        {stats.map((stat) => (
+          <Card key={stat.label} className="stat-card">
+            <div className="stat-card__top">
               <div>
-                <p className="text-2xl font-semibold leading-none">{s.value}</p>
-                <p className="text-[11px] text-text-muted mt-1">{s.label}</p>
+                <p className="stat-card__label">{stat.label}</p>
+                <p className="stat-card__value">{stat.value}</p>
+                <p className="stat-card__meta">Real-time campus operations data</p>
+              </div>
+              <div className={`stat-card__icon ${stat.bg}`}>
+                <stat.icon size={20} className={stat.fg} />
               </div>
             </div>
           </Card>
         ))}
       </div>
 
-      <div className={`grid ${isAdmin ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} gap-6`}>
-        <Card>
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Recent Tickets</h3>
-            <Link to="/dashboard/tickets" className="text-xs text-primary-600 hover:underline">View all</Link>
+      <div className={`content-grid ${!isAdmin ? 'grid-cols-1' : ''}`}>
+        <Card className="section-card">
+          <div className="section-card__header">
+            <div>
+              <h3 className="section-card__title">Recent Tickets</h3>
+              <p className="section-card__subtitle">Newest issues raised through the smart campus service flow.</p>
+            </div>
+            <Link to="/dashboard/tickets" className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-700 hover:text-primary-800">
+              View all
+            </Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="app-table-wrap">
+            <table className="app-table">
               <thead>
-                <tr className="bg-surface-alt text-xs text-text-muted">
-                  <th className="text-left px-4 py-2 font-medium">Code</th>
-                  <th className="text-left px-4 py-2 font-medium">Title</th>
-                  <th className="text-left px-4 py-2 font-medium">Priority</th>
-                  <th className="text-left px-4 py-2 font-medium">Status</th>
-                  <th className="text-left px-4 py-2 font-medium">Created</th>
+                <tr>
+                  <th>Code</th>
+                  <th>Title</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Created</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
-                {recent.map(t => (
-                  <tr key={t.id} className="hover:bg-surface-alt/50 cursor-pointer" onClick={() => window.location.href = `/dashboard/tickets/${t.id}`}>
-                    <td className="px-4 py-2.5 text-xs text-text-muted font-mono">{t.ticketCode}</td>
-                    <td className="px-4 py-2.5 font-medium max-w-[200px] truncate">{t.ticketTitle}</td>
-                    <td className="px-4 py-2.5"><Badge className={getPriorityBadge(t.priorityLevel).color}>{getPriorityBadge(t.priorityLevel).label}</Badge></td>
-                    <td className="px-4 py-2.5"><Badge className={getStatusBadge(t.status).color}>{getStatusBadge(t.status).label}</Badge></td>
-                    <td className="px-4 py-2.5 text-xs text-text-muted">{formatDate(t.createdAt)}</td>
+              <tbody>
+                {recentTickets.map((ticket) => (
+                  <tr key={ticket.id} className="cursor-pointer" onClick={() => { window.location.href = `/dashboard/tickets/${ticket.id}`; }}>
+                    <td className="font-mono text-xs text-text-muted">{ticket.ticketCode}</td>
+                    <td className="max-w-[230px] truncate font-semibold text-text-primary">{ticket.ticketTitle}</td>
+                    <td><Badge className={getPriorityBadge(ticket.priorityLevel).color}>{getPriorityBadge(ticket.priorityLevel).label}</Badge></td>
+                    <td><Badge className={getStatusBadge(ticket.status).color}>{getStatusBadge(ticket.status).label}</Badge></td>
+                    <td className="text-xs text-text-muted">{formatDate(ticket.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -121,21 +158,29 @@ export default function DashboardOverview() {
         </Card>
 
         {isAdmin && recentBookings.length > 0 && (
-          <Card>
-            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Recent Bookings</h3>
-              <Link to="/dashboard/bookings" className="text-xs text-primary-600 hover:underline">View all</Link>
+          <Card className="section-card">
+            <div className="section-card__header">
+              <div>
+                <h3 className="section-card__title">Recent Bookings</h3>
+                <p className="section-card__subtitle">Latest reservation requests across shared resources.</p>
+              </div>
+              <Link to="/dashboard/bookings" className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-700 hover:text-primary-800">
+                View all
+              </Link>
             </div>
-            <div className="divide-y divide-border">
-              {recentBookings.map(b => {
-                const bs = getBookingStatusBadge(b.status);
+            <div className="app-list">
+              {recentBookings.map((booking) => {
+                const statusBadge = getBookingStatusBadge(booking.status || booking.currentStatus);
+
                 return (
-                  <div key={b.id} className="flex items-center justify-between px-4 py-3">
+                  <div key={booking.id} className="app-list-item flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">{b.resourceName || b.resourceId}</p>
-                      <p className="text-xs text-text-muted mt-0.5">{b.requestedByName} · {formatDateShort(b.bookingDate)} · {b.startTime}–{b.endTime}</p>
+                      <p className="truncate text-sm font-semibold text-text-primary">{booking.resourceName || booking.resourceId}</p>
+                      <p className="mt-1 text-xs text-text-muted">
+                        {booking.requestedByName} - {formatDateShort(booking.bookingDate)} - {booking.startTime} - {booking.endTime}
+                      </p>
                     </div>
-                    <Badge className={bs.color}>{bs.label}</Badge>
+                    <Badge className={statusBadge.color}>{statusBadge.label}</Badge>
                   </div>
                 );
               })}

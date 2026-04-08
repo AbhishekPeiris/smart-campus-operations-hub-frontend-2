@@ -97,61 +97,74 @@ export default function UserDashboard() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
-        <div>
-          <h1 className="text-lg font-semibold text-text-primary">Welcome back, {user.fullName}</h1>
-          <p className="text-sm text-text-muted mt-0.5">Here is an overview of your booking, ticket, and notification activity.</p>
+    <div className="app-page">
+      <section className="hero-banner">
+        <div className="page-header">
+          <div>
+            <p className="page-kicker">Portal Overview</p>
+            <h1 className="page-title">Welcome back, {user.fullName}</h1>
+            <p className="page-subtitle">
+              Keep track of your bookings, incident reports, and campus notifications from one streamlined workspace.
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Link to="/portal/notifications" className="inline-flex items-center gap-2 rounded-[16px] border border-border bg-white/85 px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:bg-primary-50 hover:text-primary-700">
+              <Bell size={16} />
+              View Notifications
+            </Link>
+            <Link to="/portal/book" className="inline-flex items-center gap-2 rounded-[16px] border border-border bg-white/85 px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:bg-primary-50 hover:text-primary-700">
+              <CalendarPlus size={16} />
+              Book Resource
+            </Link>
+            <Link to="/portal/new-ticket" className="inline-flex items-center gap-2 rounded-[16px] border border-primary-700 bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700">
+              <Plus size={16} />
+              Report Incident
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Link to="/portal/notifications" className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-border text-text-secondary text-sm font-medium rounded-md hover:bg-surface-alt">
-            <Bell size={16} />
-            View Notifications
-          </Link>
-          <Link to="/portal/book" className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-border text-text-secondary text-sm font-medium rounded-md hover:bg-surface-alt">
-            <CalendarPlus size={16} />
-            Book Resource
-          </Link>
-          <Link to="/portal/new-ticket" className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700">
-            <Plus size={16} />
-            Report Incident
-          </Link>
-        </div>
-      </div>
+      </section>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-6">
+      <div className="stat-grid">
         {stats.map((stat) => (
-          <Card key={stat.label} className="p-4">
-            <div className="flex items-center justify-between">
+          <Card key={stat.label} className="stat-card">
+            <div className="stat-card__top">
               <div>
-                <p className="text-xs text-text-muted">{stat.label}</p>
-                <p className="text-2xl font-semibold mt-1">{stat.value}</p>
+                <p className="stat-card__label">{stat.label}</p>
+                <p className="stat-card__value">{stat.value}</p>
+                <p className="stat-card__meta">Updated from your live account activity</p>
               </div>
-              <div className={`p-2.5 rounded-lg ${stat.color}`}><stat.icon size={20} /></div>
+              <div className={`stat-card__icon ${stat.color}`}>
+                <stat.icon size={20} />
+              </div>
             </div>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Recent Tickets</h3>
-            <Link to="/portal/tickets" className="text-xs text-primary-600 hover:underline">View all</Link>
+      <div className="content-grid">
+        <Card className="section-card">
+          <div className="section-card__header">
+            <div>
+              <h3 className="section-card__title">Recent Tickets</h3>
+              <p className="section-card__subtitle">Your latest reported incidents and their current status.</p>
+            </div>
+            <Link to="/portal/tickets" className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-700 hover:text-primary-800">View all</Link>
           </div>
           {tickets.length === 0 ? (
-            <p className="p-8 text-center text-sm text-text-muted">No tickets yet</p>
+            <p className="px-5 py-10 text-center text-sm text-text-muted">No tickets yet</p>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="app-list">
               {tickets.slice(0, 5).map((ticket) => (
-                <Link key={ticket.id} to={`/portal/tickets/${ticket.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-surface-alt transition-colors">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-text-primary truncate">{ticket.ticketTitle}</p>
-                    <p className="text-xs text-text-muted mt-0.5">{ticket.ticketCode} - {formatDate(ticket.createdAt)}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0 ml-4">
-                    <Badge className={getPriorityBadge(ticket.priorityLevel).color}>{getPriorityBadge(ticket.priorityLevel).label}</Badge>
-                    <Badge className={getStatusBadge(ticket.status).color}>{getStatusBadge(ticket.status).label}</Badge>
+                <Link key={ticket.id} to={`/portal/tickets/${ticket.id}`} className="app-list-item block">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-text-primary">{ticket.ticketTitle}</p>
+                      <p className="mt-1 text-xs text-text-muted">{ticket.ticketCode} - {formatDate(ticket.createdAt)}</p>
+                    </div>
+                    <div className="ml-4 flex items-center gap-2 shrink-0">
+                      <Badge className={getPriorityBadge(ticket.priorityLevel).color}>{getPriorityBadge(ticket.priorityLevel).label}</Badge>
+                      <Badge className={getStatusBadge(ticket.status).color}>{getStatusBadge(ticket.status).label}</Badge>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -159,25 +172,28 @@ export default function UserDashboard() {
           )}
         </Card>
 
-        <Card>
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Recent Bookings</h3>
-            <Link to="/portal/bookings" className="text-xs text-primary-600 hover:underline">View all</Link>
+        <Card className="section-card">
+          <div className="section-card__header">
+            <div>
+              <h3 className="section-card__title">Recent Bookings</h3>
+              <p className="section-card__subtitle">Current and upcoming reservation activity for your account.</p>
+            </div>
+            <Link to="/portal/bookings" className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-700 hover:text-primary-800">View all</Link>
           </div>
           {bookings.length === 0 ? (
-            <p className="p-8 text-center text-sm text-text-muted">No bookings yet</p>
+            <p className="px-5 py-10 text-center text-sm text-text-muted">No bookings yet</p>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="app-list">
               {bookings.slice(0, 5).map((booking) => {
                 const statusBadge = getBookingStatusBadge(booking.status);
 
                 return (
-                  <div key={booking.id} className="flex items-center justify-between px-4 py-3">
+                  <div key={booking.id} className="app-list-item flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">
+                      <p className="truncate text-sm font-semibold text-text-primary">
                         {booking.resourceName || booking.resourceCode || booking.resourceId}
                       </p>
-                      <p className="text-xs text-text-muted mt-0.5">
+                      <p className="mt-1 text-xs text-text-muted">
                         {formatDateShort(booking.bookingDate)} - {formatTimeRange(booking.startTime, booking.endTime)}
                       </p>
                     </div>

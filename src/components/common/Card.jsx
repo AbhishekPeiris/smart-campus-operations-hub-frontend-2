@@ -1,3 +1,3 @@
 export default function Card({ children, className = '', ...props }) {
-  return <div className={`bg-white border border-border rounded-lg ${className}`} {...props}>{children}</div>;
+  return <div className={`surface-panel ${className}`} {...props}>{children}</div>;
 }

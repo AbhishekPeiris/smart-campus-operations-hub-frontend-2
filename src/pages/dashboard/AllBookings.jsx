@@ -32,6 +32,7 @@ import EmptyState from '../../components/common/EmptyState';
 import Pagination from '../../components/common/Pagination';
 import Modal from '../../components/common/Modal';
 import Input from '../../components/common/Input';
+import Textarea from '../../components/common/Textarea';
 
 const toBookingPage = (payload) => normalizePaginatedData(payload, normalizeBooking);
 
@@ -173,31 +174,32 @@ export default function AllBookings() {
   const bookings = data.content || [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
+    <div className="app-page">
+      <div className="page-header">
         <div>
-          <h1 className="text-lg font-semibold">All Bookings</h1>
-          <p className="text-sm text-text-muted mt-0.5">
-            Review, approve, reject, or cancel booking requests across all resources.
+          <p className="page-kicker">Booking Governance</p>
+          <h1 className="page-title">All Bookings</h1>
+          <p className="page-subtitle">
+            Review, approve, reject, or cancel reservation requests with clear filters and a structured approval queue.
           </p>
         </div>
         {filteredSummary && (
-          <div className="text-xs text-text-muted flex items-center gap-1">
-            <Search size={12} />
+          <div className="surface-panel-muted flex items-center gap-2 px-4 py-3 text-sm text-text-secondary">
+            <Search size={14} className="text-primary-700" />
             {filteredSummary}
           </div>
         )}
       </div>
 
-      <Card className="p-4 mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+      <Card className="toolbar-panel">
+        <div className="filter-grid">
           <select
             value={statusFilter}
             onChange={(event) => {
               setStatusFilter(event.target.value);
               setPage(0);
             }}
-            className="text-xs border border-border rounded-md px-2 py-2 bg-white"
+            className="text-sm"
           >
             <option value="">All Statuses</option>
             {BOOKING_STATUSES.map((status) => (
@@ -220,7 +222,7 @@ export default function AllBookings() {
               setResourceFilter(event.target.value);
               setPage(0);
             }}
-            className="text-xs border border-border rounded-md px-2 py-2 bg-white"
+            className="text-sm"
           >
             <option value="">All Resources</option>
             {resources.map((resource) => (
@@ -236,7 +238,7 @@ export default function AllBookings() {
               setRequesterFilter(event.target.value);
               setPage(0);
             }}
-            className="text-xs border border-border rounded-md px-2 py-2 bg-white"
+            className="text-sm"
           >
             <option value="">All Requesters</option>
             {users.map((user) => (
@@ -244,7 +246,7 @@ export default function AllBookings() {
             ))}
           </select>
         </div>
-        <div className="flex justify-end mt-3">
+        <div className="mt-4 flex justify-end">
           <Button
             size="sm"
             variant="secondary"
@@ -261,59 +263,59 @@ export default function AllBookings() {
         </div>
       </Card>
 
-      <Card>
+      <Card className="section-card">
         {loading ? (
           <div className="flex justify-center py-16"><Spinner className="h-8 w-8" /></div>
         ) : bookings.length === 0 ? (
           <EmptyState message="No bookings found" icon={CalendarDays} />
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="app-table-wrap">
+              <table className="app-table">
                 <thead>
-                  <tr className="bg-surface-alt text-xs text-text-muted">
-                    <th className="text-left px-4 py-2 font-medium">Resource</th>
-                    <th className="text-left px-4 py-2 font-medium">Requested By</th>
-                    <th className="text-left px-4 py-2 font-medium">Date</th>
-                    <th className="text-left px-4 py-2 font-medium">Time</th>
-                    <th className="text-left px-4 py-2 font-medium">Purpose</th>
-                    <th className="text-left px-4 py-2 font-medium">Status</th>
-                    <th className="text-left px-4 py-2 font-medium">Actions</th>
+                  <tr>
+                    <th>Resource</th>
+                    <th>Requested By</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody>
                   {bookings.map((booking) => {
                     const statusBadge = getBookingStatusBadge(booking.status);
 
                     return (
                       <tr
                         key={booking.id}
-                        className="hover:bg-surface-alt/50 cursor-pointer"
+                        className="cursor-pointer"
                         onClick={() => handleOpenDetails(booking)}
                       >
-                        <td className="px-4 py-2.5 font-medium text-xs">
+                        <td className="text-xs">
                           <div>
-                            <p>{booking.resourceName || booking.resourceCode || booking.resourceId}</p>
+                            <p className="font-semibold text-text-primary">{booking.resourceName || booking.resourceCode || booking.resourceId}</p>
                             {booking.location && (
-                              <p className="text-text-muted mt-1">{booking.location}</p>
+                              <p className="mt-1 text-text-muted">{booking.location}</p>
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-2.5 text-xs text-text-muted">
+                        <td className="text-xs text-text-muted">
                           {booking.requestedByName || booking.requestedByUserId}
                         </td>
-                        <td className="px-4 py-2.5 text-xs">{formatDateShort(booking.bookingDate)}</td>
-                        <td className="px-4 py-2.5 text-xs text-text-muted">
+                        <td className="text-xs text-text-secondary">{formatDateShort(booking.bookingDate)}</td>
+                        <td className="text-xs text-text-muted">
                           {formatTimeRange(booking.startTime, booking.endTime)}
                         </td>
-                        <td className="px-4 py-2.5 text-xs text-text-muted max-w-[220px] truncate">
+                        <td className="max-w-[240px] truncate text-xs text-text-muted">
                           {booking.purpose || '-'}
                         </td>
-                        <td className="px-4 py-2.5">
+                        <td>
                           <Badge className={statusBadge.color}>{statusBadge.label}</Badge>
                         </td>
-                        <td className="px-4 py-2.5">
-                          <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
+                        <td>
+                          <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
                             <Button size="sm" variant="secondary" onClick={() => handleOpenDetails(booking)}>
                               View
                             </Button>
@@ -324,7 +326,7 @@ export default function AllBookings() {
                                     setActionModal({ booking, action: 'approve' });
                                     setReason('');
                                   }}
-                                  className="p-1.5 rounded hover:bg-emerald-50 text-text-muted hover:text-emerald-600"
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-[12px] border border-emerald-200 bg-emerald-50 text-emerald-700 transition-colors hover:bg-emerald-100"
                                   title="Approve"
                                 >
                                   <Check size={14} />
@@ -334,7 +336,7 @@ export default function AllBookings() {
                                     setActionModal({ booking, action: 'reject' });
                                     setReason('');
                                   }}
-                                  className="p-1.5 rounded hover:bg-red-50 text-text-muted hover:text-danger"
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-[12px] border border-red-200 bg-red-50 text-danger transition-colors hover:bg-red-100"
                                   title="Reject"
                                 >
                                   <X size={14} />
@@ -347,7 +349,7 @@ export default function AllBookings() {
                                   setActionModal({ booking, action: 'cancel' });
                                   setReason('');
                                 }}
-                                className="p-1.5 rounded hover:bg-red-50 text-text-muted hover:text-danger"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-[12px] border border-red-200 bg-red-50 text-danger transition-colors hover:bg-red-100"
                                 title="Cancel"
                               >
                                 <Ban size={14} />
@@ -361,7 +363,7 @@ export default function AllBookings() {
                 </tbody>
               </table>
             </div>
-            <div className="px-4 pb-3">
+            <div className="px-5 pb-4">
               <Pagination
                 currentPage={data.currentPage || 0}
                 totalPages={data.totalPages || 0}
@@ -381,13 +383,13 @@ export default function AllBookings() {
         {detailLoading ? (
           <div className="flex justify-center py-8"><Spinner className="h-6 w-6" /></div>
         ) : selectedBooking ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
+          <div className="space-y-5">
+            <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-base font-semibold text-text-primary">
                   {selectedBooking.resourceName || selectedBooking.resourceCode || selectedBooking.resourceId}
                 </p>
-                <p className="text-sm text-text-muted mt-1">
+                <p className="mt-1 text-sm text-text-muted">
                   {formatDateShort(selectedBooking.bookingDate)} - {formatTimeRange(selectedBooking.startTime, selectedBooking.endTime)}
                 </p>
               </div>
@@ -396,50 +398,50 @@ export default function AllBookings() {
               </Badge>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-text-muted">Requested By</p>
-                <p className="text-sm font-medium">{selectedBooking.requestedByName || selectedBooking.requestedByUserId || '-'}</p>
+            <div className="detail-grid">
+              <div className="detail-tile">
+                <p className="detail-tile__label">Requested By</p>
+                <p className="detail-tile__value">{selectedBooking.requestedByName || selectedBooking.requestedByUserId || '-'}</p>
               </div>
-              <div>
-                <p className="text-xs text-text-muted">Requested At</p>
-                <p className="text-sm font-medium">{formatDate(selectedBooking.createdAt)}</p>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Requested At</p>
+                <p className="detail-tile__value">{formatDate(selectedBooking.createdAt)}</p>
               </div>
-              <div>
-                <p className="text-xs text-text-muted">Location</p>
-                <p className="text-sm font-medium">{selectedBooking.location || '-'}</p>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Location</p>
+                <p className="detail-tile__value">{selectedBooking.location || '-'}</p>
               </div>
-              <div>
-                <p className="text-xs text-text-muted">Expected Attendees</p>
-                <p className="text-sm font-medium">{selectedBooking.expectedAttendees || '-'}</p>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Expected Attendees</p>
+                <p className="detail-tile__value">{selectedBooking.expectedAttendees || '-'}</p>
               </div>
             </div>
 
-            <div>
-              <p className="text-xs text-text-muted">Purpose</p>
-              <p className="text-sm text-text-secondary whitespace-pre-wrap mt-1">
+            <div className="surface-panel-muted px-4 py-4">
+              <p className="detail-tile__label">Purpose</p>
+              <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">
                 {selectedBooking.purpose || '-'}
               </p>
             </div>
 
             {selectedBooking.reviewReason && (
-              <div>
-                <p className="text-xs text-text-muted">Review Note</p>
-                <p className="text-sm text-text-secondary mt-1">{selectedBooking.reviewReason}</p>
+              <div className="surface-panel-muted px-4 py-4">
+                <p className="detail-tile__label">Review Note</p>
+                <p className="mt-2 text-sm text-text-secondary">{selectedBooking.reviewReason}</p>
               </div>
             )}
 
             {selectedBooking.rejectionReason && (
-              <div>
-                <p className="text-xs text-text-muted">Rejection Reason</p>
-                <p className="text-sm text-danger mt-1">{selectedBooking.rejectionReason}</p>
+              <div className="surface-panel-muted px-4 py-4">
+                <p className="detail-tile__label">Rejection Reason</p>
+                <p className="mt-2 text-sm text-danger">{selectedBooking.rejectionReason}</p>
               </div>
             )}
 
             {selectedBooking.cancellationReason && (
-              <div>
-                <p className="text-xs text-text-muted">Cancellation Reason</p>
-                <p className="text-sm text-text-secondary mt-1">{selectedBooking.cancellationReason}</p>
+              <div className="surface-panel-muted px-4 py-4">
+                <p className="detail-tile__label">Cancellation Reason</p>
+                <p className="mt-2 text-sm text-text-secondary">{selectedBooking.cancellationReason}</p>
               </div>
             )}
           </div>
@@ -451,18 +453,17 @@ export default function AllBookings() {
         onClose={() => setActionModal(null)}
         title={actionModal ? `${actionModal.action.charAt(0).toUpperCase() + actionModal.action.slice(1)} Booking` : ''}
       >
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p className="text-sm text-text-secondary">
             {actionModal?.action === 'approve' && 'Approve this booking request?'}
             {actionModal?.action === 'reject' && 'Reject this booking request?'}
             {actionModal?.action === 'cancel' && 'Cancel this approved booking?'}
           </p>
-          <textarea
+          <Textarea
             value={reason}
             onChange={(event) => setReason(event.target.value)}
-            placeholder="Reason..."
-            className="w-full px-3 py-2 text-sm border border-border rounded-md resize-none"
-            rows={3}
+            placeholder="Add a reason for this decision..."
+            rows={4}
           />
           <div className="flex justify-end gap-2">
             <Button variant="secondary" size="sm" onClick={() => setActionModal(null)}>

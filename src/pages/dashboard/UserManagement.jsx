@@ -225,29 +225,28 @@ export default function UserManagement() {
   const filterRoleOptions = [{ value: 'ALL', label: 'All Roles' }, ...roleOptions];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5 gap-3">
+    <div className="app-page">
+      <div className="page-header">
         <div>
-          <h1 className="text-lg font-semibold">User Management</h1>
-          <p className="text-sm text-text-muted mt-0.5">
-            Manage account status and update roles using the backend role catalogue.
+          <p className="page-kicker">Identity Governance</p>
+          <h1 className="page-title">User Management</h1>
+          <p className="page-subtitle">
+            Manage account status, view user details, and update roles using the backend role catalogue.
           </p>
         </div>
         <Button onClick={openAddModal}>
-          <Plus size={14} className="mr-1" />
+          <Plus size={14} />
           Add New User
         </Button>
       </div>
 
-      <Card className="mb-4 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div className="md:col-span-2">
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by name or email"
-            />
-          </div>
+      <Card className="toolbar-panel">
+        <div className="filter-grid">
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search by name or email"
+          />
           <Select
             value={roleFilter}
             onChange={(event) => setRoleFilter(event.target.value)}
@@ -264,52 +263,52 @@ export default function UserManagement() {
             ]}
           />
         </div>
-        <div className="mt-3 text-xs text-text-muted flex items-center gap-2">
+        <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">
           <Search size={12} />
           Showing {filteredUsers.length} user(s) on this page
         </div>
       </Card>
 
-      <Card>
+      <Card className="section-card">
         {loading ? (
           <div className="flex justify-center py-16"><Spinner className="h-8 w-8" /></div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="app-table-wrap">
+              <table className="app-table">
                 <thead>
-                  <tr className="bg-surface-alt text-xs text-text-muted">
-                    <th className="text-left px-4 py-2 font-medium">Name</th>
-                    <th className="text-left px-4 py-2 font-medium">Email</th>
-                    <th className="text-left px-4 py-2 font-medium">Role</th>
-                    <th className="text-left px-4 py-2 font-medium">Status</th>
-                    <th className="text-left px-4 py-2 font-medium">Joined</th>
-                    <th className="text-left px-4 py-2 font-medium">Actions</th>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody>
                   {filteredUsers.map((account) => (
                     <tr
                       key={account.id}
-                      className="hover:bg-surface-alt/50 cursor-pointer"
+                      className="cursor-pointer"
                       onClick={() => openUserDetails(account)}
                     >
-                      <td className="px-4 py-2.5 font-medium">{account.fullName}</td>
-                      <td className="px-4 py-2.5 text-xs text-text-muted">{account.universityEmailAddress}</td>
-                      <td className="px-4 py-2.5">
+                      <td className="font-semibold text-text-primary">{account.fullName}</td>
+                      <td className="text-xs text-text-muted">{account.universityEmailAddress}</td>
+                      <td>
                         <Badge className={roleBadge(account.role)}>{account.role}</Badge>
                       </td>
-                      <td className="px-4 py-2.5">
+                      <td>
                         <Badge className={isEnabled(account) ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
                           {isEnabled(account) ? 'Active' : 'Disabled'}
                         </Badge>
                       </td>
-                      <td className="px-4 py-2.5 text-xs text-text-muted">{formatDate(account.createdAt)}</td>
-                      <td className="px-4 py-2.5">
-                        <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
+                      <td className="text-xs text-text-muted">{formatDate(account.createdAt)}</td>
+                      <td>
+                        <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
                           <button
                             onClick={() => openRoleModal(account)}
-                            className="p-1.5 rounded hover:bg-surface-alt text-text-muted hover:text-violet-600"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-[12px] border border-violet-200 bg-violet-50 text-violet-700 transition-colors hover:bg-violet-100"
                             title="Change Role"
                           >
                             <Shield size={13} />
@@ -321,12 +320,12 @@ export default function UserManagement() {
                           >
                             {isEnabled(account) ? (
                               <>
-                                <UserX size={13} className="mr-1" />
+                                <UserX size={13} />
                                 Disable
                               </>
                             ) : (
                               <>
-                                <UserCheck size={13} className="mr-1" />
+                                <UserCheck size={13} />
                                 Enable
                               </>
                             )}
@@ -338,7 +337,7 @@ export default function UserManagement() {
                 </tbody>
               </table>
             </div>
-            <div className="px-4 pb-3">
+            <div className="px-5 pb-4">
               <Pagination
                 currentPage={data.currentPage || 0}
                 totalPages={data.totalPages || 0}
@@ -351,47 +350,39 @@ export default function UserManagement() {
 
       <Modal open={detailOpen} onClose={() => setDetailOpen(false)} title="User Details" size="md">
         {selectedUser ? (
-          <div className="space-y-3">
-            <div>
-              <p className="text-xs text-text-muted">Full Name</p>
-              <p className="text-sm font-medium">{selectedUser.fullName || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-text-muted">Email</p>
-              <p className="text-sm font-medium">{selectedUser.universityEmailAddress || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-text-muted">Contact Number</p>
-              <p className="text-sm font-medium">{selectedUser.contactNumber || '-'}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-text-muted">Role</p>
-                <div className="mt-1">
-                  <Badge className={roleBadge(selectedUser.role)}>{selectedUser.role || '-'}</Badge>
-                </div>
+          <div className="space-y-5">
+            <div className="detail-grid">
+              <div className="detail-tile">
+                <p className="detail-tile__label">Full Name</p>
+                <p className="detail-tile__value">{selectedUser.fullName || '-'}</p>
               </div>
-              <div>
-                <p className="text-xs text-text-muted">Status</p>
-                <div className="mt-1">
-                  <Badge className={isEnabled(selectedUser) ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
-                    {isEnabled(selectedUser) ? 'Active' : 'Disabled'}
-                  </Badge>
-                </div>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Email</p>
+                <p className="detail-tile__value">{selectedUser.universityEmailAddress || '-'}</p>
+              </div>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Contact Number</p>
+                <p className="detail-tile__value">{selectedUser.contactNumber || '-'}</p>
+              </div>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Joined</p>
+                <p className="detail-tile__value">{formatDate(selectedUser.createdAt)}</p>
               </div>
             </div>
-            <div>
-              <p className="text-xs text-text-muted">Joined</p>
-              <p className="text-sm font-medium">{formatDate(selectedUser.createdAt)}</p>
+            <div className="flex items-center gap-3">
+              <Badge className={roleBadge(selectedUser.role)}>{selectedUser.role || '-'}</Badge>
+              <Badge className={isEnabled(selectedUser) ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
+                {isEnabled(selectedUser) ? 'Active' : 'Disabled'}
+              </Badge>
             </div>
           </div>
         ) : null}
       </Modal>
 
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Add New User" size="md">
-        <form onSubmit={handleAddUser} className="space-y-3">
+        <form onSubmit={handleAddUser} className="space-y-4">
           {addError && (
-            <div className="p-2.5 bg-red-50 border border-red-200 rounded text-xs text-danger">
+            <div className="soft-alert border-red-200 bg-red-50 text-danger">
               {addError}
             </div>
           )}
@@ -428,7 +419,7 @@ export default function UserManagement() {
             disabled={rolesLoading}
             required
           />
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={() => setAddOpen(false)}>
               Cancel
             </Button>
@@ -441,14 +432,14 @@ export default function UserManagement() {
 
       <Modal open={!!roleModal} onClose={() => setRoleModal(null)} title="Change User Role" size="sm">
         {roleModal && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <p className="text-sm text-text-secondary">
               Change role for <strong>{roleModal.fullName}</strong>
             </p>
             <select
               value={newRole}
               onChange={(event) => setNewRole(event.target.value)}
-              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-white"
+              className="w-full px-4 py-3 text-sm"
             >
               {roleOptions.map((role) => (
                 <option key={role.value} value={role.value}>{role.label}</option>

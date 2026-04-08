@@ -20,6 +20,7 @@ import Spinner from '../../components/common/Spinner';
 import EmptyState from '../../components/common/EmptyState';
 import Pagination from '../../components/common/Pagination';
 import Modal from '../../components/common/Modal';
+import Textarea from '../../components/common/Textarea';
 
 const toBookingPage = (payload) => normalizePaginatedData(payload, normalizeBooking);
 
@@ -96,15 +97,17 @@ export default function MyBookings() {
   const bookings = data.content || [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
+    <div className="app-page">
+      <div className="page-header">
         <div>
-          <h1 className="text-lg font-semibold">My Bookings</h1>
-          <p className="text-sm text-text-muted mt-0.5">
-            Track booking decisions, reasons, and approved reservations.
-          </p>
+          <p className="page-kicker">Reservations</p>
+          <h1 className="page-title">My Bookings</h1>
+          <p className="page-subtitle">Track booking decisions, view notes, and manage any approved reservations from one workspace.</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+      </div>
+
+      <Card className="toolbar-panel">
+        <div className="filter-grid">
           <input
             type="date"
             value={dateFilter}
@@ -112,7 +115,6 @@ export default function MyBookings() {
               setDateFilter(event.target.value);
               setPage(0);
             }}
-            className="text-xs border border-border rounded-md px-2 py-1.5 bg-white"
           />
           <select
             value={statusFilter}
@@ -120,7 +122,7 @@ export default function MyBookings() {
               setStatusFilter(event.target.value);
               setPage(0);
             }}
-            className="text-xs border border-border rounded-md px-2 py-1.5 bg-white"
+            className="text-sm"
           >
             <option value="">All Statuses</option>
             {BOOKING_STATUSES.map((status) => (
@@ -128,59 +130,57 @@ export default function MyBookings() {
             ))}
           </select>
         </div>
-      </div>
+      </Card>
 
-      <Card>
+      <Card className="section-card">
         {loading ? (
           <div className="flex justify-center py-16"><Spinner className="h-8 w-8" /></div>
         ) : bookings.length === 0 ? (
           <EmptyState message="No bookings found" icon={CalendarDays} />
         ) : (
           <>
-            <div className="divide-y divide-border">
+            <div className="app-list">
               {bookings.map((booking) => {
                 const statusBadge = getBookingStatusBadge(booking.status);
 
                 return (
-                  <div key={booking.id} className="px-4 py-4 hover:bg-surface-alt/50 transition-colors">
+                  <div key={booking.id} className="app-list-item">
                     <div className="flex items-start justify-between gap-4">
                       <button
                         type="button"
                         onClick={() => handleOpenDetails(booking)}
                         className="min-w-0 flex-1 text-left"
                       >
-                        <p className="text-sm font-medium text-text-primary">
+                        <p className="text-sm font-semibold text-text-primary">
                           {booking.resourceName || booking.resourceCode || booking.resourceId}
                         </p>
-                        <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-text-muted">
+                        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-muted">
                           <span className="flex items-center gap-1">
-                            <CalendarDays size={11} />
+                            <CalendarDays size={12} />
                             {formatDateShort(booking.bookingDate)}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Clock size={11} />
+                            <Clock size={12} />
                             {formatTimeRange(booking.startTime, booking.endTime)}
                           </span>
                           {booking.location && (
                             <span className="flex items-center gap-1">
-                              <MapPin size={11} />
+                              <MapPin size={12} />
                               {booking.location}
                             </span>
                           )}
                         </div>
                         {booking.purpose && (
-                          <p className="text-xs text-text-secondary mt-1.5">{booking.purpose}</p>
+                          <p className="mt-2 text-xs text-text-secondary">{booking.purpose}</p>
                         )}
                         {booking.reviewReason && (
-                          <p className="text-xs text-text-muted mt-1 italic">
-                            Review note: {booking.reviewReason}
-                          </p>
+                          <p className="mt-2 text-xs text-text-muted">Review note: {booking.reviewReason}</p>
                         )}
                         {booking.rejectionReason && (
-                          <p className="text-xs text-danger mt-1">Rejected: {booking.rejectionReason}</p>
+                          <p className="mt-2 text-xs text-danger">Rejected: {booking.rejectionReason}</p>
                         )}
                         {booking.cancellationReason && (
-                          <p className="text-xs text-text-muted mt-1">Cancelled: {booking.cancellationReason}</p>
+                          <p className="mt-2 text-xs text-text-muted">Cancelled: {booking.cancellationReason}</p>
                         )}
                       </button>
                       <div className="flex items-center gap-2 shrink-0">
@@ -199,7 +199,7 @@ export default function MyBookings() {
                 );
               })}
             </div>
-            <div className="px-4 pb-3">
+            <div className="px-5 pb-4">
               <Pagination
                 currentPage={data.currentPage || 0}
                 totalPages={data.totalPages || 0}
@@ -219,13 +219,13 @@ export default function MyBookings() {
         {detailLoading ? (
           <div className="flex justify-center py-8"><Spinner className="h-6 w-6" /></div>
         ) : selectedBooking ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
+          <div className="space-y-5">
+            <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-base font-semibold text-text-primary">
                   {selectedBooking.resourceName || selectedBooking.resourceCode || selectedBooking.resourceId}
                 </p>
-                <p className="text-sm text-text-muted mt-1">
+                <p className="mt-1 text-sm text-text-muted">
                   {formatDateShort(selectedBooking.bookingDate)} - {formatTimeRange(selectedBooking.startTime, selectedBooking.endTime)}
                 </p>
               </div>
@@ -234,50 +234,50 @@ export default function MyBookings() {
               </Badge>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-text-muted">Location</p>
-                <p className="text-sm font-medium">{selectedBooking.location || '-'}</p>
+            <div className="detail-grid">
+              <div className="detail-tile">
+                <p className="detail-tile__label">Location</p>
+                <p className="detail-tile__value">{selectedBooking.location || '-'}</p>
               </div>
-              <div>
-                <p className="text-xs text-text-muted">Expected Attendees</p>
-                <p className="text-sm font-medium">{selectedBooking.expectedAttendees || '-'}</p>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Expected Attendees</p>
+                <p className="detail-tile__value">{selectedBooking.expectedAttendees || '-'}</p>
               </div>
-              <div>
-                <p className="text-xs text-text-muted">Requested At</p>
-                <p className="text-sm font-medium">{formatDate(selectedBooking.createdAt)}</p>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Requested At</p>
+                <p className="detail-tile__value">{formatDate(selectedBooking.createdAt)}</p>
               </div>
-              <div>
-                <p className="text-xs text-text-muted">Requested By</p>
-                <p className="text-sm font-medium">{selectedBooking.requestedByName || '-'}</p>
+              <div className="detail-tile">
+                <p className="detail-tile__label">Requested By</p>
+                <p className="detail-tile__value">{selectedBooking.requestedByName || '-'}</p>
               </div>
             </div>
 
-            <div>
-              <p className="text-xs text-text-muted">Purpose</p>
-              <p className="text-sm text-text-secondary whitespace-pre-wrap mt-1">
+            <div className="surface-panel-muted px-4 py-4">
+              <p className="detail-tile__label">Purpose</p>
+              <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">
                 {selectedBooking.purpose || '-'}
               </p>
             </div>
 
             {selectedBooking.reviewReason && (
-              <div>
-                <p className="text-xs text-text-muted">Review Note</p>
-                <p className="text-sm text-text-secondary mt-1">{selectedBooking.reviewReason}</p>
+              <div className="surface-panel-muted px-4 py-4">
+                <p className="detail-tile__label">Review Note</p>
+                <p className="mt-2 text-sm text-text-secondary">{selectedBooking.reviewReason}</p>
               </div>
             )}
 
             {selectedBooking.rejectionReason && (
-              <div>
-                <p className="text-xs text-text-muted">Rejection Reason</p>
-                <p className="text-sm text-danger mt-1">{selectedBooking.rejectionReason}</p>
+              <div className="surface-panel-muted px-4 py-4">
+                <p className="detail-tile__label">Rejection Reason</p>
+                <p className="mt-2 text-sm text-danger">{selectedBooking.rejectionReason}</p>
               </div>
             )}
 
             {selectedBooking.cancellationReason && (
-              <div>
-                <p className="text-xs text-text-muted">Cancellation Reason</p>
-                <p className="text-sm text-text-secondary mt-1">{selectedBooking.cancellationReason}</p>
+              <div className="surface-panel-muted px-4 py-4">
+                <p className="detail-tile__label">Cancellation Reason</p>
+                <p className="mt-2 text-sm text-text-secondary">{selectedBooking.cancellationReason}</p>
               </div>
             )}
           </div>
@@ -285,16 +285,15 @@ export default function MyBookings() {
       </Modal>
 
       <Modal open={!!cancelModal} onClose={() => setCancelModal(null)} title="Cancel Booking">
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p className="text-sm text-text-secondary">
             Are you sure you want to cancel this approved booking?
           </p>
-          <textarea
+          <Textarea
             value={cancelReason}
             onChange={(event) => setCancelReason(event.target.value)}
             placeholder="Reason for cancellation..."
-            className="w-full px-3 py-2 text-sm border border-border rounded-md resize-none"
-            rows={3}
+            rows={4}
           />
           <div className="flex justify-end gap-2">
             <Button variant="secondary" size="sm" onClick={() => setCancelModal(null)}>

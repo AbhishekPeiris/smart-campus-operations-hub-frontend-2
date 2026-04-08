@@ -42,28 +42,47 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="max-w-lg mx-auto">
-      <h1 className="text-lg font-semibold mb-5">Profile</h1>
-      <Card className="p-6">
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
-          <div className="w-14 h-14 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xl font-semibold">
-            {profile.fullName?.charAt(0)}
-          </div>
-          <div>
-            <p className="text-base font-semibold">{profile.fullName}</p>
-            <p className="text-sm text-text-muted">{profile.role}</p>
-          </div>
+    <div className="app-page max-w-4xl">
+      <div className="page-header">
+        <div>
+          <p className="page-kicker">Account</p>
+          <h1 className="page-title">Profile</h1>
+          <p className="page-subtitle">Your identity, contact details, and portal access role at a glance.</p>
         </div>
-        <div className="space-y-4">
-          {fields.map((field) => (
-            <div key={field.label} className="flex items-center gap-3">
-              <field.icon size={16} className="text-text-muted shrink-0" />
-              <div>
-                <p className="text-xs text-text-muted">{field.label}</p>
-                <p className="text-sm font-medium">{field.value}</p>
-              </div>
+      </div>
+
+      <Card className="surface-panel overflow-hidden">
+        <div className="grid gap-0 lg:grid-cols-[280px_1fr]">
+          <div className="bg-[linear-gradient(180deg,rgba(15,92,192,0.96),rgba(13,78,159,0.96))] px-6 py-8 text-white">
+            <div className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[24px] bg-white/14 text-3xl font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+              {profile.fullName?.charAt(0)}
             </div>
-          ))}
+            <p className="mt-5 text-2xl font-semibold">{profile.fullName}</p>
+            <p className="mt-2 inline-flex rounded-[14px] border border-white/18 bg-white/12 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/84">
+              {profile.role}
+            </p>
+            <p className="mt-5 text-sm leading-6 text-white/76">
+              This profile card stays in sync with the authenticated session so your portal experience matches your current access level.
+            </p>
+          </div>
+
+          <div className="px-6 py-8">
+            <div className="detail-grid">
+              {fields.map((field) => (
+                <div key={field.label} className="detail-tile">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] bg-primary-50 text-primary-700">
+                      <field.icon size={17} />
+                    </span>
+                    <div>
+                      <p className="detail-tile__label">{field.label}</p>
+                      <p className="detail-tile__value">{field.value}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Card>
     </div>

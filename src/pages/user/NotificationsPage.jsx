@@ -110,9 +110,7 @@ export default function NotificationsPage() {
       setSelectedNotification(detailedNotification);
       if (!detailedNotification.read) {
         await handleMarkRead(detailedNotification.id, { silent: true });
-        setSelectedNotification((prev) => (
-          prev ? { ...prev, read: true, isRead: true } : prev
-        ));
+        setSelectedNotification((prev) => (prev ? { ...prev, read: true, isRead: true } : prev));
         emitNotificationsSync();
       }
     } catch (err) {
@@ -126,21 +124,20 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((item) => !item.read).length;
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
+    <div className="app-page">
+      <div className="page-header">
         <div>
-          <h1 className="text-lg font-semibold">Notifications</h1>
-          <p className="text-sm text-text-muted mt-0.5">
-            Stay on top of booking decisions and ticket activity.
-          </p>
+          <p className="page-kicker">Activity Center</p>
+          <h1 className="page-title">Notifications</h1>
+          <p className="page-subtitle">Stay on top of booking decisions, ticket changes, and account activity from one inbox.</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {unreadCount > 0 && (
-            <span className="px-2.5 py-1 bg-danger text-white text-xs font-medium rounded-full">
+            <span className="inline-flex items-center rounded-[14px] border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-danger">
               {unreadCount} unread on this page
             </span>
           )}
-          <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+          <label className="surface-panel-muted flex items-center gap-2 px-4 py-3 text-sm cursor-pointer">
             <input
               type="checkbox"
               checked={unreadOnly}
@@ -148,52 +145,51 @@ export default function NotificationsPage() {
                 setUnreadOnly(event.target.checked);
                 setPage(0);
               }}
-              className="accent-primary-600"
             />
             Unread only
           </label>
           <Button size="sm" variant="secondary" onClick={handleMarkAll} disabled={notifications.length === 0}>
-            <CheckCheck size={13} className="mr-1" />
+            <CheckCheck size={13} />
             Mark all read
           </Button>
         </div>
       </div>
 
-      <Card>
+      <Card className="section-card">
         {loading ? (
           <div className="flex justify-center py-16"><Spinner className="h-8 w-8" /></div>
         ) : notifications.length === 0 ? (
           <EmptyState message="No notifications" icon={Bell} />
         ) : (
           <>
-            <div className="divide-y divide-border">
+            <div className="app-list">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`px-4 py-3.5 flex gap-3 hover:bg-surface-alt/50 transition-colors ${!notification.read ? 'bg-primary-50/30' : ''}`}
+                  className={`app-list-item flex gap-4 ${!notification.read ? 'bg-primary-50/45' : ''}`}
                 >
                   <button
                     type="button"
                     onClick={() => handleOpenDetails(notification)}
-                    className="flex gap-3 flex-1 min-w-0 text-left"
+                    className="flex min-w-0 flex-1 gap-4 text-left"
                   >
-                    <span className="text-xs font-semibold shrink-0 mt-0.5 text-text-muted">
+                    <span className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] border ${!notification.read ? 'border-primary-200 bg-primary-50 text-primary-700' : 'border-border bg-white/85 text-text-muted'}`}>
                       {getNotificationIcon(notification.type)}
                     </span>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${!notification.read ? 'font-medium text-text-primary' : 'text-text-secondary'}`}>
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-sm leading-6 ${!notification.read ? 'font-semibold text-text-primary' : 'text-text-secondary'}`}>
                         {notification.message}
                       </p>
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="mt-1 text-xs text-text-muted">
                         {getNotificationLabel(notification.type)} - {formatDate(notification.createdAt)}
                       </p>
                     </div>
                   </button>
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     {!notification.read && (
                       <button
                         onClick={() => handleMarkRead(notification.id)}
-                        className="p-1.5 rounded hover:bg-surface-alt text-text-muted hover:text-primary-600"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-[12px] border border-primary-200 bg-primary-50 text-primary-700 transition-colors hover:bg-primary-100"
                         title="Mark as read"
                       >
                         <Check size={14} />
@@ -201,7 +197,7 @@ export default function NotificationsPage() {
                     )}
                     <button
                       onClick={() => handleDelete(notification.id)}
-                      className="p-1.5 rounded hover:bg-surface-alt text-text-muted hover:text-danger"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-[12px] border border-red-200 bg-red-50 text-danger transition-colors hover:bg-red-100"
                       title="Delete"
                     >
                       <Trash2 size={14} />
@@ -210,7 +206,7 @@ export default function NotificationsPage() {
                 </div>
               ))}
             </div>
-            <div className="px-4 pb-3">
+            <div className="px-5 pb-4">
               <Pagination
                 currentPage={data.currentPage || 0}
                 totalPages={data.totalPages || 0}
@@ -230,19 +226,19 @@ export default function NotificationsPage() {
         {detailLoading ? (
           <div className="flex justify-center py-8"><Spinner className="h-6 w-6" /></div>
         ) : selectedNotification ? (
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <span className="text-xs font-semibold text-text-muted mt-1">
+          <div className="space-y-5">
+            <div className="flex items-start gap-4">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-[16px] border border-primary-200 bg-primary-50 text-primary-700">
                 {getNotificationIcon(selectedNotification.type)}
               </span>
               <div>
-                <p className="text-sm font-medium text-text-primary">{selectedNotification.message}</p>
-                <p className="text-xs text-text-muted mt-1">{formatDate(selectedNotification.createdAt)}</p>
+                <p className="text-sm font-semibold text-text-primary">{selectedNotification.message}</p>
+                <p className="mt-1 text-xs text-text-muted">{formatDate(selectedNotification.createdAt)}</p>
               </div>
             </div>
-            <div className="rounded-md bg-surface-alt px-3 py-3">
-              <p className="text-xs uppercase tracking-wide text-text-muted mb-1">Details</p>
-              <p className="text-sm text-text-secondary whitespace-pre-wrap">
+            <div className="surface-panel-muted px-4 py-4">
+              <p className="detail-tile__label">Details</p>
+              <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">
                 {selectedNotification.content || selectedNotification.message}
               </p>
             </div>
