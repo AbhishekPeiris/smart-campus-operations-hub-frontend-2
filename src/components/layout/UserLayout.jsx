@@ -22,50 +22,50 @@ export default function UserLayout() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="border-b border-border bg-white">
-        <div className="flex items-center justify-between px-6 py-3">
-          <Link to="/portal" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center bg-primary-600 text-white">
-              <GraduationCap size={18} />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-text-primary">Smart Campus</p>
-              <p className="text-xs text-text-muted">Operations portal</p>
-            </div>
-          </Link>
+    <div className="min-h-screen px-4 pb-8 pt-4 md:px-6">
+      <header className="sticky top-0 z-30 mb-6">
+        <div className="layout-header px-4 py-4 md:px-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <Link to="/portal" className="flex items-center gap-3">
+                <div className="layout-brand-mark flex h-11 w-11 items-center justify-center shrink-0">
+                  <GraduationCap size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-text-primary">Smart Campus</p>
+                  <p className="text-xs text-text-muted">Operations portal</p>
+                </div>
+              </Link>
 
-          <div className="flex items-center gap-4">
-            <NotificationPanel />
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium text-text-primary">{user?.fullName}</p>
-              <p className="text-xs text-text-muted">User portal</p>
+              <div className="flex items-center gap-4">
+                <NotificationPanel />
+                <div className="hidden text-right sm:block">
+                  <p className="text-sm font-medium text-text-primary">{user?.fullName}</p>
+                  <p className="text-xs text-text-muted">User portal</p>
+                </div>
+                <button onClick={() => { logout(); navigate('/login'); }} className="icon-button h-10 w-10" title="Logout">
+                  <LogOut size={16} />
+                </button>
+              </div>
             </div>
-            <button onClick={() => { logout(); navigate('/login'); }} className="inline-flex h-9 w-9 items-center justify-center border border-border bg-white text-text-secondary hover:bg-surface-alt hover:text-text-primary" title="Logout">
-              <LogOut size={16} />
-            </button>
+
+            <nav className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
+              {nav.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={isActive(item.to) ? 'top-nav-link top-nav-link-active' : 'top-nav-link'}
+                >
+                  <item.icon size={15} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
           </div>
         </div>
-
-        <nav className="flex items-center gap-0 overflow-x-auto border-t border-border bg-white px-2">
-          {nav.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm whitespace-nowrap transition-colors ${
-                isActive(item.to)
-                  ? 'border-primary-600 text-primary-700'
-                  : 'border-transparent text-text-secondary hover:bg-surface-alt hover:text-text-primary'
-              }`}
-            >
-              <item.icon size={15} />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
       </header>
 
-      <main className="px-6 py-6">
+      <main className="px-1">
         <Outlet />
       </main>
     </div>

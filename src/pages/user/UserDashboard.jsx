@@ -107,16 +107,16 @@ export default function UserDashboard() {
               Keep track of your bookings, incident reports, and campus notifications from one streamlined workspace.
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <Link to="/portal/notifications" className="inline-flex items-center gap-2 rounded-[16px] border border-border bg-white/85 px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:bg-primary-50 hover:text-primary-700">
+          <div className="flex flex-wrap gap-3">
+            <Link to="/portal/notifications" className="hero-action">
               <Bell size={16} />
               View Notifications
             </Link>
-            <Link to="/portal/book" className="inline-flex items-center gap-2 rounded-[16px] border border-border bg-white/85 px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:bg-primary-50 hover:text-primary-700">
+            <Link to="/portal/book" className="hero-action">
               <CalendarPlus size={16} />
               Book Resource
             </Link>
-            <Link to="/portal/new-ticket" className="inline-flex items-center gap-2 rounded-[16px] border border-primary-700 bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700">
+            <Link to="/portal/new-ticket" className="hero-action hero-action-primary">
               <Plus size={16} />
               Report Incident
             </Link>

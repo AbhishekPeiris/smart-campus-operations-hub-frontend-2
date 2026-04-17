@@ -151,26 +151,26 @@ export default function NotificationPanel() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="relative inline-flex h-9 w-9 items-center justify-center border border-border bg-white text-text-secondary hover:bg-surface-alt hover:text-text-primary"
+        className="icon-button relative h-10 w-10"
         title="Notifications"
       >
         <Bell size={17} />
         {unread > 0 && (
-          <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-danger px-1.5 py-0.5 text-[10px] font-bold text-white">
+          <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-linear-to-r from-danger to-[#ef6a7d] px-1.5 py-0.5 text-[10px] font-bold text-white shadow-[0_10px_18px_rgba(202,66,92,0.28)]">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[9999] mt-2 flex max-h-[32rem] w-[22rem] flex-col overflow-hidden border border-border bg-white sm:w-[25rem]">
-          <div className="border-b border-border bg-white px-4 py-4 shrink-0">
+        <div className="absolute right-0 top-full z-[9999] mt-3 flex max-h-[32rem] w-[22rem] flex-col overflow-hidden rounded-[24px] border border-border bg-[rgba(255,255,255,0.92)] shadow-[0_28px_58px_rgba(18,38,70,0.18)] backdrop-blur-xl sm:w-[25rem]">
+          <div className="shrink-0 border-b border-border bg-[rgba(255,255,255,0.72)] px-4 py-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs text-text-muted">Activity</p>
                 <h3 className="mt-1 text-base font-semibold text-text-primary">Notifications</h3>
               </div>
-              <button onClick={() => setOpen(false)} className="inline-flex h-8 w-8 items-center justify-center border border-border bg-white text-text-muted hover:bg-surface-alt">
+              <button onClick={() => setOpen(false)} className="icon-button h-8 w-8">
                 <X size={14} className="text-text-muted" />
               </button>
             </div>
@@ -178,7 +178,7 @@ export default function NotificationPanel() {
               {unread > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="mt-3 inline-flex items-center gap-1 border border-primary-200 bg-white px-3 py-2 text-xs font-semibold text-primary-700 hover:bg-surface-alt"
+                  className="mt-3 inline-flex items-center gap-1 rounded-[14px] border border-primary-200 bg-white/90 px-3 py-2 text-xs font-semibold text-primary-700 shadow-[0_10px_22px_rgba(42,127,255,0.10)] hover:bg-white"
                 >
                   <CheckCheck size={12} />
                   Mark all read
@@ -199,14 +199,14 @@ export default function NotificationPanel() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`flex gap-3 px-4 py-4 transition-colors hover:bg-surface-alt ${!notification.read ? 'bg-[#f7fbff]' : ''}`}
+                    className={`flex gap-3 px-4 py-4 transition-colors hover:bg-surface-alt ${!notification.read ? 'bg-[rgba(238,246,255,0.9)]' : ''}`}
                   >
                     <button
                       type="button"
                       onClick={() => handleOpenNotifications(notification)}
                       className="flex gap-3 flex-1 min-w-0 text-left"
                     >
-                      <span className={`mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center border ${!notification.read ? 'border-primary-200 bg-primary-50 text-primary-700' : 'border-border bg-white text-text-muted'}`}>
+                      <span className={`mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] border ${!notification.read ? 'border-primary-200 bg-primary-50 text-primary-700' : 'border-border bg-white/85 text-text-muted'}`}>
                         {getNotificationIcon(notification.type)}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -220,7 +220,7 @@ export default function NotificationPanel() {
                       {!notification.read && (
                         <button
                           onClick={() => handleMarkRead(notification.id)}
-                          className="inline-flex h-8 w-8 items-center justify-center text-text-muted hover:bg-surface-alt hover:text-primary-700"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-[12px] text-text-muted hover:bg-surface-alt hover:text-primary-700"
                           title="Mark as read"
                         >
                           <Check size={12} />
@@ -228,7 +228,7 @@ export default function NotificationPanel() {
                       )}
                       <button
                         onClick={() => handleDelete(notification.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center text-text-muted hover:bg-surface-alt hover:text-danger"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-[12px] text-text-muted hover:bg-surface-alt hover:text-danger"
                         title="Delete"
                       >
                         <Trash2 size={12} />
@@ -240,11 +240,11 @@ export default function NotificationPanel() {
             )}
           </div>
 
-          <div className="border-t border-border bg-white px-4 py-3">
+          <div className="border-t border-border bg-[rgba(255,255,255,0.72)] px-4 py-3">
             <button
               type="button"
               onClick={() => handleOpenNotifications()}
-              className="flex w-full items-center justify-center gap-1.5 border border-border bg-white px-3 py-2 text-xs font-semibold text-primary-700 hover:bg-surface-alt"
+              className="flex w-full items-center justify-center gap-1.5 rounded-[16px] border border-border bg-white/90 px-3 py-2.5 text-xs font-semibold text-primary-700 shadow-[0_10px_24px_rgba(31,65,114,0.08)] hover:bg-white"
             >
               View all notifications
               <ArrowRight size={12} />

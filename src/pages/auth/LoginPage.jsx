@@ -39,13 +39,14 @@ export default function LoginPage() {
 
   return (
     <div className="auth-shell">
-      <div className="w-full max-w-85">
+      <div className="w-full max-w-[28rem]">
         <div className="mb-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-text-primary text-white">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[20px] bg-linear-to-br from-primary-700 via-primary-600 to-primary-500 text-white shadow-[0_18px_34px_rgba(31,99,226,0.28)]">
             <GraduationCap size={22} />
           </div>
-          <h1 className="mt-4 text-2xl font-light text-text-primary">Sign in to Smart Campus</h1>
-          <p className="mt-2 text-sm text-text-secondary">Use your campus account to continue.</p>
+          <p className="mt-5 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-primary-700">Smart Campus Portal</p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-text-primary">Sign in to Smart Campus</h1>
+          <p className="mt-2 text-sm leading-6 text-text-secondary">Use your campus account to continue into the refreshed operations workspace.</p>
         </div>
 
         <div className="auth-card">
@@ -91,7 +92,7 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="mt-4 rounded-md border border-border bg-white px-4 py-4 text-center text-sm text-text-secondary">
+        <div className="surface-panel-muted mt-4 px-4 py-4 text-center text-sm text-text-secondary">
           New to the portal? <Link to="/register" className="font-medium text-primary-500 hover:underline">Create an account</Link>
         </div>
       </div>
