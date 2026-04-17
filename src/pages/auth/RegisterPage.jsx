@@ -4,13 +4,21 @@ import { GraduationCap } from 'lucide-react';
 import { register } from '../../api/auth';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { useAuth } from '../../context/useAuth';
+import GoogleOAuthButton from '../../components/auth/GoogleOAuthButton';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ fullName: '', universityEmailAddress: '', password: '', contactNumber: '', role: 'USER' });
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const { loginUser } = useAuth();
   const navigate = useNavigate();
+
+  const redirectAfterLogin = (account) => {
+    if (account.role === 'USER') navigate('/portal');
+    else navigate('/dashboard');
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -59,6 +67,11 @@ export default function RegisterPage() {
     setError('');
   };
 
+  const handleGoogleAuthenticated = (data) => {
+    loginUser(data);
+    redirectAfterLogin(data);
+  };
+
   return (
     <div className="auth-shell">
       <div className="w-full max-w-[400px]">
@@ -80,6 +93,14 @@ export default function RegisterPage() {
             <Input label="Contact number" value={form.contactNumber} onChange={set('contactNumber')} placeholder="0771234567" maxLength={10} error={fieldErrors.contactNumber} />
             <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Creating account...' : 'Create account'}</Button>
           </form>
+
+          <div className="my-4 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-text-muted">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <GoogleOAuthButton onAuthenticated={handleGoogleAuthenticated} />
         </div>
 
         <div className="mt-4 rounded-md border border-border bg-white px-4 py-4 text-center text-sm text-text-secondary">

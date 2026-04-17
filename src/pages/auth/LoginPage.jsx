@@ -1,18 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GraduationCap } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
-import { getGoogleOAuthConfig, googleLogin, login } from '../../api/auth';
+import { login } from '../../api/auth';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { extractApiData } from '../../utils/apiData';
+import GoogleOAuthButton from '../../components/auth/GoogleOAuthButton';
 
 export default function LoginPage() {
   const [form, setForm] = useState({ universityEmailAddress: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleClientId, setGoogleClientId] = useState('');
-  const [googleLoading, setGoogleLoading] = useState(false);
   const { loginUser } = useAuth();
   const navigate = useNavigate();
 
@@ -20,83 +19,6 @@ export default function LoginPage() {
     if (account.role === 'USER') navigate('/portal');
     else navigate('/dashboard');
   }, [navigate]);
-
-  const handleGoogleResponse = useCallback(async (response) => {
-    if (!response?.credential) return;
-
-    setGoogleLoading(true);
-    setError('');
-    try {
-      const res = await googleLogin(response.credential);
-      const data = extractApiData(res);
-      loginUser(data);
-      redirectAfterLogin(data);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Google login failed');
-    } finally {
-      setGoogleLoading(false);
-    }
-  }, [loginUser, redirectAfterLogin]);
-
-  const renderGoogleButton = useCallback((clientId) => {
-    if (!window.google?.accounts?.id) return;
-
-    const buttonRoot = document.getElementById('google-signin-btn');
-    if (!buttonRoot) return;
-
-    buttonRoot.innerHTML = '';
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: handleGoogleResponse,
-    });
-    window.google.accounts.id.renderButton(buttonRoot, {
-      theme: 'outline',
-      size: 'large',
-      width: '100%',
-      text: 'signin_with',
-    });
-  }, [handleGoogleResponse]);
-
-  useEffect(() => {
-    getGoogleOAuthConfig()
-      .then((res) => {
-        const config = extractApiData(res);
-        if (config?.enabled && config?.clientId) {
-          setGoogleClientId(config.clientId);
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to load Google OAuth config:', err);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (!googleClientId) return undefined;
-
-    if (window.google?.accounts?.id) {
-      renderGoogleButton(googleClientId);
-      return undefined;
-    }
-
-    let script = document.getElementById('google-gsi-script');
-
-    const handleLoad = () => renderGoogleButton(googleClientId);
-
-    if (!script) {
-      script = document.createElement('script');
-      script.id = 'google-gsi-script';
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
-    }
-
-    script.addEventListener('load', handleLoad);
-
-    return () => {
-      script.removeEventListener('load', handleLoad);
-    };
-  }, [googleClientId, renderGoogleButton]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -117,7 +39,7 @@ export default function LoginPage() {
 
   return (
     <div className="auth-shell">
-      <div className="w-full max-w-[340px]">
+      <div className="w-full max-w-85">
         <div className="mb-6 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-text-primary text-white">
             <GraduationCap size={22} />
@@ -155,18 +77,18 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {googleClientId && (
-            <>
-              <div className="my-4 flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs text-text-muted">or</span>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-              <div id="google-signin-btn" className="flex min-h-10 justify-center">
-                {googleLoading && <p className="text-xs text-text-muted">Signing in with Google...</p>}
-              </div>
-            </>
-          )}
+          <div className="my-4 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-text-muted">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <GoogleOAuthButton
+            onAuthenticated={(data) => {
+              loginUser(data);
+              redirectAfterLogin(data);
+            }}
+          />
         </div>
 
         <div className="mt-4 rounded-md border border-border bg-white px-4 py-4 text-center text-sm text-text-secondary">
